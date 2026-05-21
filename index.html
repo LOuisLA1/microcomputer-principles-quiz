@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微机原理期末复习测验</title>
+<style>
+:root {
+--bg: #f5f5f5;
+--card-bg: #fff;
+--text: #1a1a1a;
+--text-secondary: #666;
+--border: #e0e0e0;
+--accent: #2563eb;
+--accent-hover: #1d4ed8;
+--success: #16a34a;
+--success-bg: #dcfce7;
+--danger: #dc2626;
+--danger-bg: #fef2f2;
+--warning: #f59e0b;
+--shadow: 0 1px 3px rgba(0,0,0,.1);
+--shadow-lg: 0 4px 12px rgba(0,0,0,.1);
+}
+:root.dark {
+--bg: #1a1a2e;
+--card-bg: #252540;
+--text: #e0e0e0;
+--text-secondary: #a0a0b0;
+--border: #3a3a5a;
+--accent: #60a5fa;
+--accent-hover: #3b82f6;
+--success: #4ade80;
+--success-bg: #14532d;
+--danger: #f87171;
+--danger-bg: #7f1d1d;
+--shadow: 0 1px 3px rgba(0,0,0,.3);
+--shadow-lg: 0 4px 12px rgba(0,0,0,.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+background: var(--bg);
+color: var(--text);
+min-height: 100vh;
+transition: background .3s, color .3s;
+}
+.container { max-width: 800px; margin:0 auto; padding: 20px; }
+
+/* Header */
+.header {
+background: var(--card-bg);
+border-bottom: 1px solid var(--border);
+padding: 16px 20px;
+position: sticky; top:0; z-index:100;
+box-shadow: var(--shadow);
+display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+.header h1 { font-size:1.2rem; font-weight:700; }
+.header-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.btn {
+padding: 6px 14px; border:1px solid var(--border); border-radius:6px;
+background: var(--card-bg); color: var(--text);
+cursor:pointer; font-size:.85rem; transition: all .15s;
+white-space:nowrap;
+}
+.btn:hover { border-color:var(--accent); color:var(--accent); }
+.btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+.btn-primary:hover { background:var(--accent-hover); color:#fff; }
+.btn-sm { padding:4px 10px; font-size:.78rem; }
+.btn-icon { width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+
+/* Module filter */
+.module-filter {
+display:flex; flex-wrap:wrap; gap:6px; padding:12px 0;
+}
+.module-chip {
+padding:4px 12px; border:1px solid var(--border); border-radius:20px;
+font-size:.8rem; cursor:pointer; transition:all .15s;
+user-select:none; background:var(--card-bg);
+}
+.module-chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.module-chip:hover:not(.active) { border-color:var(--accent); }
+
+/* Stats bar */
+.stats-bar {
+display:flex; gap:16px; flex-wrap:wrap; padding:10px 0;
+font-size:.85rem; color:var(--text-secondary);
+}
+.stats-bar span { display:flex; align-items:center; gap:4px; }
+.progress-bar-outer {
+flex:1; min-width:100px; height:6px; background:var(--border); border-radius:3px; overflow:hidden;
+align-self:center;
+}
+.progress-bar-inner { height:100%; background:var(--accent); border-radius:3px; transition:width .3s; }
+
+/* Question card */
+.question-card {
+background:var(--card-bg); border:1px solid var(--border);
+border-radius:10px; padding:28px; margin:16px 0;
+box-shadow:var(--shadow);
+}
+.q-module-tag { font-size:.75rem; color:var(--accent); font-weight:600; margin-bottom:6px; text-transform:uppercase; }
+.q-type-tag {
+display:inline-block; padding:2px 8px; border-radius:4px; font-size:.72rem;
+background:var(--border); color:var(--text-secondary); margin-bottom:10px;
+}
+.q-text { font-size:1.05rem; line-height:1.7; margin-bottom:18px; }
+.q-text .formula {
+display:inline-block; background:var(--bg); padding:2px 8px; border-radius:4px;
+font-family:"SF Mono","Fira Code","Consolas",monospace; font-size:.92em;
+margin:0 2px;
+}
+.q-text .code-block {
+display:block; background:var(--bg); padding:10px 14px; border-radius:6px;
+font-family:"SF Mono","Fira Code","Consolas",monospace; font-size:.88em;
+margin:8px 0; line-height:1.6; white-space:pre;
+}
+.q-text .overline { text-decoration:overline; }
+
+/* Options */
+.options { display:flex; flex-direction:column; gap:8px; }
+.option {
+padding:12px 16px; border:2px solid var(--border); border-radius:8px;
+cursor:pointer; transition:all .15s; font-size:.95rem;
+display:flex; align-items:flex-start; gap:10px;
+}
+.option:hover { border-color:var(--accent); background:rgba(37,99,235,.04); }
+.option.selected { border-color:var(--accent); background:rgba(37,99,235,.08); }
+.option.correct { border-color:var(--success); background:var(--success-bg); }
+.option.wrong { border-color:var(--danger); background:var(--danger-bg); }
+.option.disabled { pointer-events:none; opacity:.85; }
+.option-key {
+display:flex; align-items:center; justify-content:center;
+width:24px; height:24px; border-radius:50%; border:1.5px solid var(--border);
+font-size:.75rem; font-weight:700; flex-shrink:0;
+}
+.option.selected .option-key { background:var(--accent); color:#fff; border-color:var(--accent); }
+.option.correct .option-key { background:var(--success); color:#fff; border-color:var(--success); }
+.option.wrong .option-key { background:var(--danger); color:#fff; border-color:var(--danger); }
+
+/* Fill-in answer input */
+.fill-answer { margin:12px 0; }
+.fill-answer input {
+padding:8px 12px; border:2px solid var(--border); border-radius:6px;
+font-size:.95rem; background:var(--bg); color:var(--text); width:200px;
+transition:border-color .15s;
+}
+.fill-answer input:focus { outline:none; border-color:var(--accent); }
+
+/* Explanation */
+.explanation {
+margin-top:16px; padding:16px; border-radius:8px;
+background:var(--bg); border-left:3px solid var(--accent);
+font-size:.9rem; line-height:1.7; display:none;
+}
+.explanation.show { display:block; }
+.explanation strong { color:var(--accent); }
+
+/* Navigation */
+.nav-bar {
+display:flex; justify-content:space-between; align-items:center;
+padding:12px 0; gap:10px;
+}
+.nav-hint { font-size:.8rem; color:var(--text-secondary); }
+
+/* Score screen */
+.score-screen {
+text-align:center; padding:40px 20px;
+}
+.score-screen h2 { font-size:1.5rem; margin-bottom:8px; }
+.score-big { font-size:3rem; font-weight:800; color:var(--accent); margin:16px 0; }
+.score-detail { font-size:.9rem; color:var(--text-secondary); line-height:1.8; margin-bottom:20px; }
+
+/* Error book */
+.error-list { display:flex; flex-direction:column; gap:12px; }
+.error-item {
+background:var(--card-bg); border:1px solid var(--border); border-radius:8px;
+padding:16px; cursor:pointer; transition:all .15s;
+}
+.error-item:hover { border-color:var(--accent); }
+.error-item .q-module-tag { margin-bottom:4px; }
+.error-item .q-text { font-size:.9rem; margin-bottom:8px; }
+
+/* Tabs */
+.tab-bar { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:16px; }
+.tab-btn {
+padding:8px 16px; border:none; background:none; color:var(--text-secondary);
+cursor:pointer; font-size:.9rem; border-bottom:2px solid transparent;
+margin-bottom:-2px; transition:all .15s;
+}
+.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* Responsive */
+@media (max-width:600px) {
+.container { padding:12px; }
+.question-card { padding:18px; }
+.header h1 { font-size:1rem; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>微机原理 · 期末测验</h1>
+<div class="header-controls">
+<span id="timer" style="font-family:monospace;font-size:.9rem;">00:00</span>
+<button class="btn btn-icon" id="btnTheme" title="深色/浅色切换">🌓</button>
+<button class="btn" id="btnShuffle" title="随机打乱题目">🔀 打乱</button>
+<button class="btn" id="btnErrorBook">📋 错题本 <span id="errorCount" style="font-weight:700">0</span></button>
+<button class="btn btn-primary" id="btnReset">重新开始</button>
+</div>
+</div>
+
+<div class="container">
+<!-- Tabs -->
+<div class="tab-bar" id="tabBar">
+<button class="tab-btn active" data-tab="quiz">📝 答题</button>
+<button class="tab-btn" data-tab="errors">📋 错题本</button>
+</div>
+
+<!-- Module filter -->
+<div class="module-filter" id="moduleFilter"></div>
+
+<!-- Quiz area -->
+<div id="quizArea">
+<div class="stats-bar">
+<span id="qCounter">第 1/68 题</span>
+<div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+<span id="scoreDisplay">得分: 0</span>
+</div>
+<div id="questionCard" class="question-card"></div>
+<div class="nav-bar">
+<button class="btn" id="btnPrev">← 上一题</button>
+<span class="nav-hint">按 1-4 选择答案</span>
+<button class="btn" id="btnNext">下一题 →</button>
+</div>
+</div>
+
+<!-- Score screen (hidden initially) -->
+<div id="scoreScreen" class="score-screen" style="display:none;"></div>
+
+<!-- Error book screen (hidden initially) -->
+<div id="errorScreen" style="display:none;"></div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const questions = [
+// ===== 模块一：微处理器 (10题) =====
+{ id:1, module:"模块一：微处理器", type:"single",
+q:"8086/8088 CPU从结构功能上看是由（ ）组成的。",
+opts:["控制器和运算器","控制器、运算器和寄存器","控制器和20位物理地址加法器","执行单元和总线接口单元"],
+ans:3,
+exp:"8086/8088 CPU在架构上为了实现指令流水线操作，将内部结构分成了两大独立的功能部件：<strong>执行单元（EU，Execution Unit）和总线接口单元（BIU，Bus Interface Unit）</strong>。EU负责指令的译码和执行（包含ALU、通用寄存器、标志寄存器等），BIU负责从内存中预取指令并送入指令队列（包含段寄存器、IP、地址加法器等）。这种“取指”与“执行”并行的双单元结构是8086区别于早期CPU（如8080）最重要的架构特征，也是实现流水线操作的基础。" },
+{ id:2, module:"模块一：微处理器", type:"single",
+q:"指令队列具有（ ）作用。",
+opts:["暂存操作数地址","暂存操作数","暂存指令地址","暂存预取指令"],
+ans:3,
+exp:"8086的总线接口单元（BIU）在执行单元（EU）执行指令时，会利用总线空闲时间提前从内存中读取后续的指令代码，并存放在一个<strong>6字节（8086）或4字节（8088）的指令队列</strong>中。因此，指令队列的作用就是<strong>暂存这些预先提取出来的指令代码</strong>。这是流水线设计的关键：EU不需要等待BIU去取指令，而是直接从队列中拿，从而实现了指令的并行流水线工作——当前指令在执行时，下一条指令已经在路上了。" },
+{ id:3, module:"模块一：微处理器", type:"single",
+q:"8086/8088段寄存器的功能是（ ）。",
+opts:["用于计算有效地址","执行各种数据传送操作","用于存放段起始地址及计算物理地址","用于存放段起始地址"],
+ans:2,
+exp:"8086具有16位的寄存器，但需要寻址1MB（20位）的物理空间，为此引入了<strong>分段管理机制</strong>。段寄存器（CS、DS、SS、ES）存放每个逻辑段的<strong>段基址的高16位</strong>（实际段基址 = 段寄存器值 × 16），在BIU的地址加法器中配合偏移地址（EA）计算出20位的物理地址。注意选项D只说“存放段起始地址”不够完整，因为段寄存器<strong>实际存储的是段基址右移4位后的值</strong>，且必须配合偏移量才能得到真正的物理地址。" },
+{ id:4, module:"模块一：微处理器", type:"single",
+q:"8086CPU的标志寄存器中状态标志位有（ ）位。",
+opts:["1","3","6","9"],
+ans:2,
+exp:"8086的标志寄存器（FLAGS）是一个16位寄存器，其中实际占用了9位。这9位分为两类：<br><strong>6位状态标志位</strong>（CF进位、PF奇偶、AF辅助进位、ZF零值、SF符号、OF溢出）——这些标志<strong>自动反映ALU运算后的结果特征</strong>，程序员通常只读不写。<br><strong>3位控制标志位</strong>（DF方向、IF中断允许、TF陷阱/单步）——这些标志<strong>由程序员通过专门指令设置</strong>，用于控制CPU的工作模式。记法：状态6+控制3=9位总共。" },
+{ id:5, module:"模块一：微处理器", type:"single",
+q:"8086/8088 CPU内部有（ ）个8位寄存器。",
+opts:["4","8","14","20"],
+ans:1,
+exp:"8086内部有<strong>4个16位通用数据寄存器</strong>：AX、BX、CX、DX。每个16位寄存器都可以<strong>拆分为两个独立的8位寄存器</strong>来使用：高8位（AH、BH、CH、DH）和低8位（AL、BL、CL、DL）。所以总共有 <strong>4×2=8</strong> 个8位寄存器。这8个8位寄存器就是AL、AH、BL、BH、CL、CH、DL、DH——在汇编编程中经常用于字节级操作。" },
+{ id:6, module:"模块一：微处理器", type:"single",
+q:"指令指针寄存器IP的作用是（ ）。",
+opts:["保存将要执行的下一条指令所在的位置","保存CPU要访问的内存单元地址","保存运算器运算结果","保存正在执行的一条指令所在的位置"],
+ans:0,
+exp:"<strong>IP（Instruction Pointer）是指令指针，充当程序计数器</strong>。它始终指向当前代码段中<strong>下一条准备执行的指令的段内偏移地址</strong>。物理地址由<strong>CS:IP</strong>共同决定：物理地址 = CS×16 + IP。每当CPU从指令队列中取走一条指令去执行，IP就会自动递增，指向下一条指令。注意区分：IP指向的是“下一条”而非“当前正在执行”的指令。" },
+{ id:7, module:"模块一：微处理器", type:"fill",
+q:"执行 MOV AL, 99H 和 ADD AL, 88H 后，假设运算为8位加法，请问：<br>CF=___，PF=___，AF=___，SF=___，OF=___，ZF=___。（填0或1）",
+opts:[],
+ans:["1","1","1","0","1","0"],
+exp:`将十六进制数转换为二进制进行8位加法：<br><span class='formula'>99H = 1001 1001B</span> <span class='formula'>88H = 1000 1000B</span><br>相加过程：<pre style='font-family:monospace;line-height:1.6;'>  1001 1001  (99H)
++ 1000 1000  (88H)
+─────────────
+1 0010 0001  (21H，最高位产生进位1)</pre><strong>CF=1</strong>：最高位（D₇）向更高位有进位（即第8位向第9位进位）。<br><strong>ZF=0</strong>：结果为21H，不为0。<br><strong>SF=0</strong>：结果的最高位D₇为0（正数的符号位）。<br><strong>PF=1</strong>：结果的低8位0010 0001中含"1"的个数为2个（偶数个），所以PF=1。<br><strong>AF=1</strong>：低4位相加（1001+1000=10001），D₃位向D₄位产生进位。<br><strong>OF=1</strong>：<strong>这是关键</strong>！两个负数（99H和88H在有符号数中最高位均为1=负数）相加，结果变成了正数（21H最高位为0=正数），说明发生了<strong>有符号数溢出</strong>。OF的判断公式：若最高位进位≠次高位进位，则OF=1。此处最高位进位=1，次高位进位=0，所以OF=1。` },
+{ id:8, module:"模块一：微处理器", type:"single",
+q:"某8位数据存放在2300H:2300H处，该8位数据存放单元的物理地址是（ ）。",
+opts:["23000H","23230H","23023H","25300H"],
+ans:3,
+exp:"8086物理地址的计算公式：<strong>物理地址 = 段地址×16 + 偏移地址</strong>（即段地址左移4位再加偏移地址）。<br>本题中：段地址=2300H，偏移地址=2300H。<br>计算：<span class='formula'>2300H×16 + 2300H = 23000H + 2300H = 25300H</span><br>记忆技巧：段地址后面加一个0（左移4位=×16）再加上偏移地址即可。" },
+{ id:9, module:"模块一：微处理器", type:"tf",
+q:"8086/8088 CPU允许多个逻辑段重叠或交叉。",
+opts:["对","错"],
+ans:0,
+exp:"8086的内存分段是<strong>逻辑上的划分，不是物理隔离</strong>。由于段基址排布密集（每隔16个字节就可以作为一个新段的开头，因为段寄存器值×16后最低4位为0），而一个段的最大长度可达64KB，因此各个逻辑段之间<strong>完全可以部分重叠、完全重叠、分立或交叉排布</strong>。例如，两个不同的段可以共享同一块物理内存区域，这正是分段机制灵活性的体现。在实际编程中，可以通过设置不同的段寄存器值来让多个逻辑段指向同一物理区域。" },
+{ id:10, module:"模块一：微处理器", type:"tf",
+q:"一个物理地址所对应的逻辑地址是唯一的。",
+opts:["对","错"],
+ans:1,
+exp:"由于逻辑段之间可以相互重叠，<strong>同一个物理地址可以通过不同的“段地址:偏移地址”组合计算出来</strong>。例如物理地址12345H，既可以表示为1234H:0005H（12340H+0005H），也可以表示为1230H:0045H（12300H+0045H），还可以表示为1000H:2345H（10000H+2345H）……有无穷多种组合方式。因此一个物理地址对应的逻辑地址<strong>不唯一</strong>。这说明逻辑地址到物理地址的映射是多对一的关系。" },
+
+// ===== 模块二：寻址方式和传送类指令 (10题) =====
+{ id:11, module:"模块二：寻址方式和传送类指令", type:"tf",
+q:"CS和IP中的内容不能通过指令随意改变，也就是说CS和IP都不能用作目的操作数。",
+opts:["对","错"],
+ans:0,
+exp:"CS（代码段寄存器）和IP（指令指针寄存器）共同决定了程序的执行流向，<strong>普通传送指令（如MOV CS, AX或MOV IP, BX）绝对不允许把它们作为目的操作数</strong>——因为随意修改CS/IP会导致程序“飞掉”。要改变它们的值，<strong>必须使用专门的控制转移指令</strong>（如JMP、CALL、RET、INT、IRET等），这些指令会自动将新的段地址和偏移量装入CS和IP，同时CPU会处理好指令队列的刷新等底层细节。" },
+{ id:12, module:"模块二：寻址方式和传送类指令", type:"tf",
+q:"堆栈存取操作是以字节为单位的。当堆栈存入数据时，SP减1，当从堆栈取出数据时，SP加1。",
+opts:["对","错"],
+ans:1,
+exp:"8086系统的堆栈操作<strong>必须以字（2字节/16位）为单位</strong>进行，不允许单字节的PUSH/POP！<br>压栈（PUSH）时：<span class='formula'>SP ← SP − 2</span>（先减后存，栈向低地址方向生长）。<br>出栈（POP）时：<span class='formula'>SP ← SP + 2</span>（先取后加）。<br>SP每次变化量为2而非1。这是8086硬件规定的，因为8086的外部数据总线是16位的，一次访存自然对齐到字边界更高效。记住：8086的堆栈<strong>永远是按字操作的</strong>。" },
+{ id:13, module:"模块二：寻址方式和传送类指令", type:"tf",
+q:"MOV指令执行时会影响标志位状态。",
+opts:["对","错"],
+ans:1,
+exp:"<strong>数据传送类指令（MOV、PUSH、POP、XCHG、LEA、LDS、LES等）的核心功能只是原封不动地搬移数据，绝对不影响任何状态标志位（FLAGS）。</strong>这是传送类指令与算术逻辑类指令最重要的区别之一。考题中经常考察这一点——给你一段含MOV的代码后让你判断标志位，如果其中有ADD/SUB等会影响标志位，而MOV不会，需要区分对待。" },
+{ id:14, module:"模块二：寻址方式和传送类指令", type:"single",
+q:"指令 MOV CX, 1245H 中的源操作数放在（ ）。",
+opts:["DS:1245H所指明的内存中","该指令中","某个寄存器中","都不是"],
+ans:1,
+exp:"在指令 MOV CX, 1245H 中，源操作数1245H是一个<strong>直接写在指令代码中的常数</strong>。这种寻址方式叫做<strong>立即寻址</strong>，该数据就<strong>直接包含在指令本身的机器码字节中</strong>，不需要去内存或寄存器里找。立即数在汇编后嵌入在代码段中，紧跟在操作码之后。注意区分：如果是 MOV CX, [1245H]（带方括号），那才是直接寻址（访问内存DS:1245H处）。" },
+{ id:15, module:"模块二：寻址方式和传送类指令", type:"single",
+q:"MOV AX, [BP][SI] 的源操作数的物理地址是（ ）。",
+opts:["10H × DS + BP + SI","10H × ES + BP + SI","10H × SS + BP + SI","10H × CS + BP + SI"],
+ans:2,
+exp:"在8086中有一个<strong>铁律</strong>：<strong>只要寻址中使用了寄存器BP作为基址寄存器，如果没有特别指定段前缀（段超越），默认的段寄存器一定是堆栈段寄存器SS</strong>。这是硬件逻辑决定的——BP的设计初衷就是方便访问堆栈中的数据。<br>如果使用的是BX作为基址，则默认是DS。<br>因此 [BP][SI]（基址变址寻址）的物理地址 = <span class='formula'>SS×16 + BP + SI</span>。<br>总结默认段分配：BP→SS，BX/SI/DI→DS，取指令→CS，堆栈操作→SS，串操作目的→ES。" },
+{ id:16, module:"模块二：寻址方式和传送类指令", type:"single",
+q:"下面的数据交换指令中，错误的操作是（ ）。",
+opts:["XCHG AX, DI","XCHG BX, [BP+DAT]","XCHG DS, SS","XCHG BUF, DX"],
+ans:2,
+exp:"数据交换指令XCHG的使用有限制：<strong>不能在两个段寄存器之间直接交换数据</strong>。选项C企图直接交换DS和SS，这违反了XCHG的语法规则。XCHG允许的操作数组合是：寄存器↔寄存器、寄存器↔存储单元，但<strong>段寄存器不能作为XCHG的任一操作数</strong>。此外，立即数也不能作为XCHG的操作数。这些限制在考试中经常出现。" },
+{ id:17, module:"模块二：寻址方式和传送类指令", type:"single",
+q:"在POP [BX]指令中，目的操作数的段地址和偏移地址分别在（ ）。",
+opts:["没有段地址和偏移地址","DS和BX中","ES和BX中","SS和SP中"],
+ans:1,
+exp:"指令POP [BX]的含义是：将当前栈顶的一个字弹出，送到由<strong>[BX]指示的内存单元</strong>中。注意，题目问的是<strong>“目的操作数”</strong>（即接收数据的那个内存单元[BX]）的位置信息：<br>· <strong>偏移地址在BX中</strong>（BX存放了目标内存单元的偏移量）。<br>· <strong>段地址默认在DS中</strong>（BX作为基址寄存器时默认段是DS，除非用段超越前缀）。<br>注意区分：如果题目问的是“源操作数”（栈中数据），那才涉及SS和SP。" },
+{ id:18, module:"模块二：寻址方式和传送类指令", type:"tf",
+q:"立即数不允许被用作目的操作数。",
+opts:["对","错"],
+ans:0,
+exp:"目的操作数是用来存放运算或传送结果的“目的地”，必须是一个<strong>有实际存储空间</strong>的寄存器或内存单元。立即数（如5或1245H）是一个<strong>纯常数</strong>，它在汇编时被嵌入到代码中，没有属于自己的可写入的存储器地址或寄存器空间。因此<strong>绝不能作为被写入的目的操作数</strong>。比如MOV 5, AX是毫无意义且编译器会报错的——你不能把AX的值存进常数5里，5在物理上没有存储位置。" },
+{ id:19, module:"模块二：寻址方式和传送类指令", type:"tf",
+q:"不能给段寄存器直接赋立即数。",
+opts:["对","错"],
+ans:0,
+exp:`8086 CPU硬件结构限制了<strong>不能将一个立即数直接传送给段寄存器</strong>（如MOV DS, 2000H是非法的）。这是因为段寄存器的数据通路设计上没有直接连接立即数总线。如果想给段寄存器赋值，<strong>必须通过一个通用寄存器做中转</strong>：<br><span class='code-block'>MOV AX, 2000H
+MOV DS, AX</span>两条指令完成。这个规则在考试和编程中都非常常见，记住：<strong>段寄存器←立即数 这条路不通。</strong>` },
+{ id:20, module:"模块二：寻址方式和传送类指令", type:"single",
+q:"寄存器间接寻址方式中，操作数的有效地址EA可通过寄存器（ ）间接得到。",
+opts:["AX","BP","CX","SP"],
+ans:1,
+exp:"在8086中，允许用来进行<strong>寄存器间接寻址</strong>（即用中括号[]存放有效地址）的通用寄存器只有4个：<strong>BX、BP、SI、DI</strong>。选项中只有BP在此列。<br>AX、CX、DX等通用数据寄存器<strong>不能</strong>用于形式如[AX]的间接寻址——如果你写MOV AX, [CX]，编译器会报错。<br>SP虽然也是指针类寄存器，但它专用于堆栈操作（PUSH/POP自动使用），不能显式写成[SP]用于间接寻址。记忆：间址四兄弟——BX、BP、SI、DI。" },
+
+// ===== 模块三：常用指令与逻辑运算 (10题) =====
+{ id:21, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"INC和DEC指令不影响标志位（ ）的状态。",
+opts:["OF","CF","SF","ZF"],
+ans:1,
+exp:"这是微机原理考试中<strong>极高频的一个陷阱题</strong>！INC（加1）和DEC（减1）指令会根据运算结果影响状态标志位OF、SF、ZF、AF、PF——但<strong>唯独不影响进位标志位CF</strong>。为什么这样设计？因为INC/DEC最常见的用途是<strong>维护循环计数器</strong>，如果INC改变了CF，那么在循环中之前ALU运算产生的进位就会被破坏。8086的设计者有意让INC/DEC不碰CF，这样可以在循环体内放心使用INC/DEC来修改计数器，同时保护循环体内的进位信息。" },
+{ id:22, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"完成下列程序段操作后，各状态位的状态为（ ）。<span class='code-block'>MOV AL, 1AH\nMOV BL, 97H\nADD AL, BL</span>",
+opts:["ZF=0, SF=1, CF=0, AF=0, IF=1, OF=0","ZF=0, SF=1, CF=0, AF=1, IF=0, OF=0","ZF=0, SF=0, CF=1, AF=0, IF=1, OF=1","ZF=0, SF=0, CF=1, AF=1, IF=0, OF=1"],
+ans:1,
+exp:`将数据转换为二进制：<br><span class='formula'>1AH = 0001 1010B</span>（正数，最高位=0）<br><span class='formula'>97H = 1001 0111B</span>（负数，最高位=1）<br><pre style='font-family:monospace;line-height:1.6;'>  0001 1010  (1AH)
++ 1001 0111  (97H)
+─────────────
+1011 0001  (B1H)</pre><strong>ZF=0</strong>：结果B1H≠0。<br><strong>SF=1</strong>：结果的最高位（D₇）为1，表示负数。<br><strong>CF=0</strong>：最高位没有向更高位产生进位（D₇位的1+1=10产生了进位？不对，让我们仔细看：D₇位1+1=10，确实产生了进位到D₈！但这里实际上最高位是D₇，0001 1010的第7位是0，1001 0111的第7位是1，0+1=1，没有进位。我重新计算一下：1AH+97H，1A是00011010，97是10010111，D₇位是第8位（从左数第一位），分别是0和1，0+1+低位的进位=？先看D₆位（从左数第二位），0+0=0，没有进位到D₇。所以D₇位=0+1+0=1，无进位。故CF=0。）<br><strong>AF=1</strong>：低4位相加（1010+0111=10001），D₃→D₄有进位。<br><strong>OF=0</strong>：<strong>异号数相加绝不可能溢出</strong>（正数+负数，定义上就不可能超出有符号数范围）。IF在MOV和ADD指令中不受影响，保持默认0。` },
+{ id:23, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"下列指令助记符中影响标志寄存器中进位位CF的指令有（ ）。",
+opts:["MOV","ADD","DEC","INC"],
+ans:1,
+exp:"· <strong>MOV</strong>属于数据传送指令，<strong>完全不影响</strong>任何标志位。<br>· <strong>INC和DEC</strong>刚才详细讲过了，<strong>特意不影响CF</strong>（为了保护循环中的进位信息）。<br>· 只有<strong>ADD（加法）</strong>作为常规算术运算，会根据最高位是否产生进位来<strong>正常改变CF</strong>。<br>总结规律：传送类→不影响任何标志；INC/DEC→影响除CF外的标志；ADD/SUB/ADC/SBB/CMP→影响全部状态标志（包括CF）。" },
+{ id:24, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"AND、OR、XOR、NOT为四条逻辑运算指令，下面（ ）解释有误。",
+opts:["它们都是按位操作的","指令XOR AX, AX执行后，结果不变，但是影响标志位","指令AND AL, 0FH执行后，使AL的高4位清零，低4位不变","若DL=09H，CH=30H，执行OR DL, CH后，结果为DL=39H"],
+ans:1,
+exp:"<strong>为什么B是错的？</strong>XOR AX, AX属于“自身异或”——由于每一位都和自己相同，异或（相同为0，不同为1）出来的结果<strong>必然全部变成0</strong>（这是编程中最经典的寄存器清零方法，比MOV AX,0生成的机器码更短）。所以它的<strong>结果改变了（变成全0），而不是“结果不变”</strong>。<br>· A正确：四条逻辑指令都是按位（bitwise）操作的。<br>· C正确：AND AL, 0FH = AND AL, 00001111B，高4位与0=清零，低4位与1=保留，这是经典的“取低4位”操作。<br>· D正确：09H=00001001B，30H=00110000B，按位或=00111001B=39H。" },
+{ id:25, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"完成将累加器AX清零，但不影响进位标志位CF状态的指令是（ ）。",
+opts:["SUB AX, AX","XOR AX, AX","MOV AX, 00H","AND AX, 00H"],
+ans:2,
+exp:"这道题的关键要求是<strong>“不影响进位标志位CF”</strong>。<br>· SUB AX, AX（自减）、XOR AX, AX（自异或）、AND AX, 00H（与0）都<strong>属于算术/逻辑运算指令</strong>，它们清零AX的同时，<strong>CF也会被清零（SUB和XOR使CF=0，AND也使CF=0）</strong>——改变了CF的原有状态。<br>· 只有<strong>MOV AX, 00H</strong>是纯粹的数据传送指令，它把0送入AX，但<strong>绝对不碰标志寄存器，CF保持原值不变</strong>。<br>这是考察“传送指令不影响标志位”这一核心规则的经典题目。" },
+{ id:26, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"下列指令分别执行后，总是使CF=0和OF=0的指令为（ ）。",
+opts:["MOV","OR","NEG","INC"],
+ans:1,
+exp:"在8086中，所有<strong>逻辑运算指令（AND、OR、XOR、TEST）</strong>在执行后，其硬件逻辑会<strong>强制将进位标志CF和溢出标志OF自动清零（即CF=0, OF=0）</strong>，并且AF的值不确定。<br>· MOV不影响标志位，但不会“总是使CF=0”——如果CF本来就是1，MOV不会改变它。<br>· NEG（求补）执行时，若操作数非0则CF=1；若操作数为0则CF=0，不满足“总是=0”。<br>· INC不影响CF。<br>所以只有OR（及其他逻辑指令）满足条件。这是硬件设计的规定，记住即可：<strong>逻辑运算→CF=0, OF=0。</strong>" },
+{ id:27, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"对状态标志位CF产生影响的指令是（ ）。",
+opts:["INC AX","NOT AX","NEG AX","DEC AX"],
+ans:2,
+exp:"· <strong>INC和DEC</strong>：绝不影响CF（前面反复强调了）。<br>· <strong>NOT</strong>（按位取反）：这是一条特殊的逻辑指令——它<strong>不对任何标志位产生影响</strong>！不同于AND/OR/XOR会改变CF/OF/SF/ZF/PF，取反指令NOT执行后FLAGS完全不变。<br>· <strong>NEG</strong>（求补码/取负）：相当于用0减去当前操作数。执行规则：<strong>操作数=0时CF=0；操作数≠0时CF=1</strong>。所以它明显影响CF。<br>这道题综合考察了三类指令对CF的不同处理方式，需要记清各自规则。" },
+{ id:28, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"使状态标志位CF清零的不正确指令是（ ）。",
+opts:["SUB AX, AX","CLC","NEG AX","XOR AX, AX"],
+ans:2,
+exp:"· SUB AX, AX和XOR AX, AX：结果都是0，无进位产生，会使<strong>CF=0</strong>。<br>· <strong>CLC</strong>（Clear Carry Flag）：专门的进位清零指令，直接使CF=0。<br>· <strong>NEG AX</strong>：<strong>除非AX本来就是0才会CF=0</strong>；如果AX中有非零数据，执行NEG后<strong>反而会使CF=1</strong>！因此NEG不能保证“总是清零”。<br>题目问的是“不正确”（即不能保证CF清零），所以选NEG AX。" },
+{ id:29, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"AL的内容实现算术右移4位的正确指令是（ ）。",
+opts:["SHR AL, 4","MOV CL, 4\nSHR AL, CL","SAR AL, 4","MOV CL, 4\nSAR AL, CL"],
+ans:3,
+exp:"题目有两大考点：<br>1. <strong>算术右移</strong>：助记符是<strong>SAL/SAR</strong>（SHR是逻辑右移）。算术右移SAR会<strong>保留最高位（符号位）不变</strong>——右移时空出的位用原符号位填充，因此适用于有符号数的除以2ⁿ运算；而逻辑右移SHR右移时空出的位用0填充。<br>2. <strong>移位位数>1时必须通过CL</strong>：在8086中，移位指令如果移动次数<strong>大于1位</strong>，必须先将次数放入<strong>CL寄存器</strong>中。直接写SAR AL, 4是非法的（8086只允许SAR AL, 1这种立即数为1的形式）。<br>所以正确答案是先MOV CL, 4再SAR AL, CL。" },
+{ id:30, module:"模块三：常用指令与逻辑运算", type:"single",
+q:"对于算术左移指令 SAL AL, 1，若AL中的带符号数在指令执行后符号有变，可以通过（ ）来确认。",
+opts:["OF=1","OF=0","CF=1","CF=0"],
+ans:0,
+exp:"8086的移位指令中有一条规定：当只移动<strong>1位</strong>时（如SAL AL, 1），如果移动后<strong>结果的符号位发生了改变</strong>（即最高位从0→1或从1→0），硬件会自动将<strong>溢出标志位OF置为1</strong>。<br>这是OF在移位指令中的特殊含义：<strong>OF=1表示移位导致符号位反转</strong>（即算术意义上溢出/变号了）。注意：对于移多位（>1位）的情况，OF的值是不确定的。" },
+
+// ===== 模块四：输入输出接口检测 (8题) =====
+{ id:31, module:"模块四：输入输出接口", type:"single",
+q:"下列芯片中可以作为双向数据缓冲器的是（ ）。",
+opts:["74LS244","74LS138","74LS245","74LS373"],
+ans:2,
+exp:"· <strong>74LS245</strong>：最经典的<strong>八位双向总线收发器/缓冲器</strong>，引脚DIR控制方向，常用于CPU数据总线的双向驱动和隔离。<br>· 74LS244：八路单向三态缓冲器（只能单向传输，两个4位组可独立控制）。<br>· 74LS138：3-8线译码器（用于地址译码/片选信号产生）。<br>· 74LS373：八路三态锁存器（带使能控制），常用作地址锁存器。<br>记忆：245→双向→数据总线；244→单向→输入缓冲；373→锁存→地址锁存；138→译码→片选。" },
+{ id:32, module:"模块四：输入输出接口", type:"tf",
+q:"8086 CPU的I/O接口与存储器是统一编址的。",
+opts:["对","错"],
+ans:1,
+exp:"8086 CPU采用的是<strong>独立编址（隔离编址）</strong>方式，而不是统一编址。<br>· <strong>存储器地址空间</strong>：1MB（20位地址线），使用MOV等访存指令。<br>· <strong>I/O端口地址空间</strong>：独立的64KB（仅用低16位地址线），使用专门的IN/OUT指令。<br>· 两者通过<strong>M/IO控制信号</strong>来区分：M/IO=高电平→访问存储器；M/IO=低电平→访问I/O端口。<br>对比：某些处理器（如ARM、MIPS）采用统一编址（内存映射I/O），所有外设寄存器映射到内存地址空间，用同一套指令访问。" },
+{ id:33, module:"模块四：输入输出接口", type:"single",
+q:"8086 CPU对地址为240H的I/O端口读操作指令为（ ）。",
+opts:["MOV AL, 240H","MOV AL, [240H]","IN AL, 240H","MOV DX, 240H\nIN AL, DX"],
+ans:3,
+exp:"8086对I/O端口的操作<strong>只能使用专门的IN/OUT指令</strong>（不能用MOV访存指令）。有两个语法关键点：<br>1. <strong>端口地址≤FFH（8位）</strong>：可以直接在IN/OUT中写立即数，如IN AL, 80H。<br>2. <strong>端口地址>FFH（如本题240H）</strong>：<strong>必须先将端口地址送入DX寄存器</strong>，然后使用IN AL, DX（或IN AX, DX）的形式进行间接寻址。<br>本题240H > FFH，所以必须走DX中转这条路：MOV DX, 240H → IN AL, DX。" },
+{ id:34, module:"模块四：输入输出接口", type:"fill",
+q:"CPU执行 IN AL, DX 指令时，M/<span class='overline'>IO</span>引脚为____电平，<span class='overline'>RD</span>为____电平，<span class='overline'>WR</span>为____电平。（填“高”或“低”）",
+opts:[],
+ans:["低","低","高"],
+exp:"IN AL, DX是从I/O端口<strong>读取</strong>数据到CPU。<br>· <strong>M/IO引脚=低</strong>：低电平表示当前进行的是<strong>I/O端口操作</strong>（高电平表示存储器操作）。因为IN是I/O指令，所以M/IO为低。<br>· <strong>RD引脚=低</strong>：低电平有效，表示CPU正在进行<strong>读操作</strong>。IN就是读I/O，所以RD为低。<br>· <strong>WR引脚=高</strong>：低电平有效，此时CPU不进行写操作，所以WR保持无效状态（高电平）。<br>速记：IN→读→RD低、WR高；OUT→写→WR低、RD高。M/IO：访I/O为低，访内存为高。" },
+{ id:35, module:"模块四：输入输出接口", type:"single",
+q:"某接口芯片有2条地址线A1、A0，它的片选信号/CS由总线上的地址信号A9~A5产生，则该芯片（ ）。",
+opts:["占有4个端口地址，且端口地址唯一，互不重叠","占有8个端口地址，但每个端口地址重复2次","占有16个端口地址，但每个端口地址重复4次","占有32个端口地址，但每个端口地址重复8次"],
+ans:3,
+exp:"来分析16位I/O地址总线中每个部分的分工：<br>· 芯片内部2条地址线A1A0 → 芯片内部<strong>4个端口</strong>（2²=4）。<br>· A9~A5共<strong>5条</strong>参与片选译码（产生/CS信号）。<br>· 总共10位I/O地址（8086的I/O地址仅用A0~A15中的低16位，但这里只讨论A0~A9的10条线）：5条片选 + 2条内部选择 = 7条已用。<br>· 还剩<strong>3条地址线未接入</strong>（A15~A10中的部分线），这3条悬空线可以产生 2³=<strong>8</strong> 种任意组合。每个内部端口会因为这3条悬空地址线产生<strong>8个不同的“影子地址”（每个端口被映射到8个不同地址）</strong>。<br>· 总占用地址数：4端口×8重复=<strong>32个端口地址</strong>。" },
+{ id:36, module:"模块四：输入输出接口", type:"single",
+q:"某接口译码电路中，AEN、<span class='overline'>IOR</span>、A15~A9输入到一个与非门电路产生片选信号，该I/O接口为（ ）类型。",
+opts:["输入","输出"],
+ans:0,
+exp:"从电路连接的信号可以看出：<strong>IOR（I/O Read，I/O读信号）</strong>参与了片选译码。IOR有效（低电平）时该接口才被选中，这意味着CPU是<strong>从该接口读取数据</strong>——数据从外设流向CPU。<br>因此该接口电路对应的是<strong>输入（Input）接口</strong>。<br>类似地，如果片选译码中参与的是IOW（I/O Write），则该接口为输出接口。判断原则：读信号参与译码→输入接口；写信号参与译码→输出接口。" },
+{ id:37, module:"模块四：输入输出接口", type:"single",
+q:"可用作简单输入接口电路的是（ ）。",
+opts:["译码器","锁存器","反向器","三态缓冲区"],
+ans:3,
+exp:"<strong>外设输入数据时最大的问题是不能长时间死占数据总线</strong>——多个外设共享同一条数据总线，任何时候只能有一个设备驱动总线，否则会发生总线冲突。<br>· <strong>三态缓冲区</strong>（如74LS244）：<strong>当CPU不读它时输出呈高阻态（第三态）</strong>，相当于与总线断开；当CPU发出读信号时才打开输出，将外设数据送上总线。这正是简单输入接口的理想选择。<br>· 锁存器（如74LS373）：通常用作<strong>简单输出接口</strong>——CPU写数据后锁存器保持输出状态，驱动外设，CPU不写时也保持输出，不会产生总线冲突。" },
+{ id:38, module:"模块四：输入输出接口", type:"single",
+q:"下列芯片中可以作为地址锁存器的是（ ）。",
+opts:["74LS244","74LS138","74LS245","74LS373"],
+ans:3,
+exp:"因为8086的系统总线是<strong>地址/数据分时复用</strong>的（AD0~AD15），在总线周期第一个时钟周期（T1）CPU送出地址信息，之后这些引脚又用作数据线。为了让外部存储器/外设在<strong>整个总线周期内都能获得稳定的地址</strong>，必须用锁存器在T1时刻把地址“抓住”并保持。<br><strong>74LS373</strong>是带三态输出的八路锁存器，ALE（地址锁存允许）信号在T1期间有效时将地址存入373，373的输出在整个总线周期内保持该地址不变——因此是微机原理中<strong>首选的地址锁存芯片</strong>。它与8086的ALE信号完美配合。" },
+
+// ===== 模块五：存储器基础知识 (10题) =====
+{ id:39, module:"模块五：存储器基础知识", type:"single",
+q:"CPU不能直接访问的是（ ）。",
+opts:["RAM","ROM","内存","外存"],
+ans:3,
+exp:"CPU能够<strong>直接访问</strong>（即通过地址总线和数据总线直接读写）的是<strong>内存（主存）</strong>——包括RAM和ROM，它们直接挂在系统总线上。<br><strong>外存</strong>（如硬盘、U盘、光盘等）不能由CPU直接访问，因为：①外存不挂在CPU的系统总线上，而是通过I/O接口（如SATA控制器、USB控制器）连接；②外存的数据必须先通过I/O接口读入内存（DMA或PIO方式），然后CPU才能处理。这是存储器层次结构的基本概念。" },
+{ id:40, module:"模块五：存储器基础知识", type:"single",
+q:"256KB的SRAM具有8条数据线，那么它具有（ ）条地址线。",
+opts:["10","18","20","32"],
+ans:1,
+exp:"<strong>256KB = 256×1024 = 262144 = 2¹⁸ 字节</strong>。<br>8条数据线意味着<strong>每个地址单元存放1个字节（8位）</strong>。<br>所以需要2¹⁸个地址→需要<strong>18条地址线</strong>（因为2的18次方才够编址2¹⁸个不同单元）。<br>通用公式：地址线条数 = log₂(存储容量/每个地址的字节数)。本题：log₂(256×1024/1) = log₂(2¹⁸) = 18。" },
+{ id:41, module:"模块五：存储器基础知识", type:"single",
+q:"在PC机中，CPU访问各类存储器的速度由高到低为（ ）。",
+opts:["高速缓存、主存、硬盘、U盘","主存、硬盘、U盘、高速缓存","硬盘、主存、U盘、高速缓存","硬盘、高速缓存、主存、U盘"],
+ans:0,
+exp:"存储器访问速度从高到低（即从快到慢）的排序：<br><strong>高速缓存（Cache，SRAM工艺，CPU片内/片外几纳秒）→ 主存（DRAM，几十纳秒）→ 硬盘（机械寻道毫秒级 / SSD微秒级）→ U盘（USB传输+Flash，比内置硬盘更慢）</strong>。<br>这是存储器层次结构中“速度金字塔”的体现：越靠近CPU越快、越贵、容量越小。Cache→内存→外存，构成经典的三级存储体系。" },
+{ id:42, module:"模块五：存储器基础知识", type:"single",
+q:"下列只读存储器中，可紫外线擦除数据的是（ ）。",
+opts:["PROM","EPROM","EEPROM","Flash Memory"],
+ans:1,
+exp:"· <strong>PROM</strong>（Programmable ROM）：一次性可编程，熔丝型，烧录后<strong>不可擦除</strong>。<br>· <strong>EPROM</strong>（Erasable Programmable ROM）：<strong>紫外线擦除</strong>——芯片上有一个石英玻璃窗口，用紫外线照射15~20分钟可擦除全部数据，然后可重新编程。可多次擦写。<br>· <strong>EEPROM</strong>（Electrically Erasable PROM）：<strong>电擦除</strong>，不需紫外线，可直接在电路中按字节擦写。<br>· <strong>Flash Memory</strong>：闪存，电擦除，按块（block）擦除，U盘和SSD的核心。" },
+{ id:43, module:"模块五：存储器基础知识", type:"single",
+q:"下列只读存储器中，仅能写入一次数据的是（ ）。",
+opts:["PROM","EPROM","EEPROM","Flash Memory"],
+ans:0,
+exp:"<strong>PROM（Programmable ROM）为一次性可编程只读存储器</strong>——出厂时所有位都是1，用户通过专用编程器施加高压脉冲将特定位的熔丝烧断（变成0），<strong>烧断后不可恢复，只能写入一次</strong>。适用于产品已定型、大批量固化程序的场景。EPROM可紫外线擦除后重写，EEPROM和Flash都可电擦除重写，都不是一次性的。" },
+{ id:44, module:"模块五：存储器基础知识", type:"tf",
+q:"因ROM是只读存储器，向它内部写数据是不可能的。",
+opts:["对","错"],
+ans:1,
+exp:"这个说法在早期掩膜ROM时代是对的，但在现代语境下是错的。<br><strong>ROM（Read-Only Memory）这个名称是历史遗留</strong>——现代的EPROM、EEPROM、Flash Memory等技术虽然广义上仍属于ROM大类（非易失性），但都<strong>可以通过特定方式擦除和重新写入数据</strong>：<br>· EPROM：用紫外线擦除后重写。<br>· EEPROM：电信号擦除后重写，可逐字节操作。<br>· Flash Memory：电擦除，按块操作，U盘和SSD每天都在被写入。<br>所以“ROM不能写”这一说法是错误的。更准确的表述：ROM是非易失性存储器，但现代ROM大多支持擦除重写。" },
+{ id:45, module:"模块五：存储器基础知识", type:"single",
+q:"易失型存储器是（ ）。",
+opts:["RAM","PROM","EPROM","Flash Memory"],
+ans:0,
+exp:"<strong>RAM（Random Access Memory，随机存取存储器）属于易失性存储器</strong>——断电后存储的数据会全部丢失。这是因为RAM（DRAM用电容存储/SRAM用触发器存储）需要持续供电来维持存储状态。<br>而PROM、EPROM、Flash Memory都属于<strong>非易失性存储器（NVM）</strong>——它们通过物理方式（熔丝、浮栅电荷等）存储数据，断电后数据不会丢失。这是RAM与ROM/Flash最本质的区别之一。" },
+{ id:46, module:"模块五：存储器基础知识", type:"single",
+q:"EPROM是指（ ）。",
+opts:["只读存储器","可编程的只读存储器","可电改写的只读存储器","可擦除可编程的只读存储器"],
+ans:3,
+exp:"<strong>EPROM</strong>全称为 <strong>E</strong>rasable <strong>P</strong>rogrammable <strong>R</strong>ead <strong>O</strong>nly <strong>M</strong>emory，即<strong>可擦除可编程只读存储器</strong>。<br>各选项对应关系：<br>· A“只读存储器”→ROM/MROM（掩膜ROM）。<br>· B“可编程的只读存储器”→PROM。<br>· C“可电改写的只读存储器”→EEPROM（Electrically Erasable PROM 或写作 E²PROM）。<br>· D“可擦除可编程的只读存储器”→EPROM（紫外线擦除）。<br>记忆：“EP”中的E是Erasable（可擦除），P是Programmable（可编程）。" },
+{ id:47, module:"模块五：存储器基础知识", type:"single",
+q:"断电后，计算机中（ ）中的数据将全部丢失。",
+opts:["硬盘","ROM和RAM","RAM","ROM"],
+ans:2,
+exp:"<strong>RAM属于易失性存储器</strong>，断电后存储在其中的数据会<strong>全部丢失</strong>。这就是为什么电脑突然断电时未保存的文档会丢失——因为它们当时只存在于RAM中。<br>· <strong>硬盘</strong>：数据存储在磁性盘片或NAND闪存中，断电后数据保持不变。<br>· <strong>ROM</strong>：非易失性，数据物理固化在存储单元中，断电不丢失。<br>这就是计算机必须有ROM（存BIOS/固件）和硬盘（长久存储）的原因——RAM虽然快，但断电即失。" },
+{ id:48, module:"模块五：存储器基础知识", type:"single",
+q:"32KB的SRAM具有8条数据线，那么它具有（ ）条地址线。",
+opts:["12","14","15","16"],
+ans:2,
+exp:"<strong>32KB = 32×1024 = 32768 = 2¹⁵ 字节</strong>。<br>8条数据线意味着每个地址单元存放1个字节（8位）。<br>计算地址线数量：log₂(32×1024/1) = log₂(2¹⁵) = <strong>15条</strong>。<br>对比：前一道题256KB→18条地址线，32KB=256KB/8→15条。验证：2^15=32768，2^18=262144=8×32768，符合。" },
+
+// ===== 模块六：中断系统 (10题) =====
+{ id:49, module:"模块六：中断系统", type:"tf",
+q:"程序中断的断点是中断服务程序的返回地址。",
+opts:["对","错"],
+ans:0,
+exp:"当CPU响应中断时，会<strong>暂停当前正在执行的主程序</strong>，转去执行对应的中断服务程序（ISR）。为了在ISR执行完毕后能够<strong>精确返回到被中断的位置继续执行</strong>，CPU在响应中断时自动将断点信息（即被中断位置的下一条指令的CS:IP值）压入堆栈保存。<br>ISR最后执行IRET指令时，从堆栈中弹出CS和IP，CPU就能回到断点处继续执行。因此<strong>断点地址就是中断服务程序的返回地址</strong>——它告诉CPU“处理完中断后应该回哪里去”。" },
+{ id:50, module:"模块六：中断系统", type:"single",
+q:"在8086/8088 CPU中，NMI中断的中断向量在中断向量表中的位置为（ ）。",
+opts:["是由程序指定的","由DOS自动分配的","固定在0008H开始的4个字节","固定在中断向量表的表首"],
+ans:2,
+exp:"8086/8088 CPU的<strong>NMI（非屏蔽中断）的中断类型码固定为2号</strong>——这是硬件硬性规定的，不可更改。<br>中断向量在IVT中的地址计算公式：<span class='formula'>中断向量存放首地址 = 中断类型号 × 4</span><br>NMI的类型码=2，所以：<span class='formula'>2×4 = 8 = 0008H</span><br>因此NMI的中断向量（入口地址）<strong>固定存放在从物理地址0000H:0008H（即00008H）开始的4个连续字节中</strong>。<br>注意：NMI的中断类型码（2号）和向量存放地址（0008H）都是由硬件固定的，与程序/DOS无关。" },
+{ id:51, module:"模块六：中断系统", type:"single",
+q:"8086中断系统的中断类型号是（ ）。",
+opts:["中断服务程序的入口地址","中断向量表的内容","中断向量表的地址指针","以上三项都不是"],
+ans:3,
+exp:"<strong>中断类型号（中断类型码）是系统分配给每个中断源的一个8位二进制编号（0~255，共256个）</strong>，用来<strong>唯一标识不同的中断源</strong>。<br>注意区分以下概念：<br>· <strong>中断类型号</strong>：一个索引编号（0~255），如NMI的类型号是2，除法错误是0。<br>· <strong>中断向量</strong>：中断服务程序（ISR）的入口地址（CS:IP）。<br>· <strong>中断向量表（IVT）</strong>：存放在内存00000H~003FFH的1KB表格，每个表项4字节。<br>· <strong>中断向量的地址</strong>：类型号×4，即该向量在IVT中的存放位置。<br>类型号<strong>本身不是</strong>入口地址、不是表内容、也不是地址指针——它只用来计算表项位置。因此A、B、C都不正确。" },
+{ id:52, module:"模块六：中断系统", type:"single",
+q:"中断向量的地址是（ ）。",
+opts:["子程序入口地址","中断服务程序入口地址","中断服务程序入口地址的地址","传送数据的起始地址"],
+ans:2,
+exp:"这道题考的是<strong>概念之间的嵌套关系</strong>：<br>· <strong>中断向量</strong>本身 = 中断服务程序（ISR）的入口地址（即ISR第一条指令的CS:IP值）。<br>· <strong>“中断向量的地址”</strong> = 存放该CS:IP值的<strong>存储单元的地址</strong>（即在IVT中的物理地址）。<br>打个比方：如果中断服务程序在F000:F84DH，“向量”相当于门牌号F000:F84D，而“向量的地址”相当于这个门牌号写在哪个邮箱里（0000:0044H）。<br>所以“中断向量的地址”=中断服务程序入口地址的地址（指针的指针），选C。" },
+{ id:53, module:"模块六：中断系统", type:"single",
+q:"根据下面所提供的某80X86微机内存中的数据，判断INT 11H中断服务程序的入口地址是（ ）。<br><span class='code-block'>0000:0040  B3 18 8A CC 4D F8 00 F0 - 41 F8 00 F0 C5 18 8A CC\n0000:0050  39 E7 00 F0 A0 19 8A CC - 2E E8 00 F0 D2 EF 00 F0</span>",
+opts:["F000:F84D","CC8A:19A0","A019:8ACC","4DF8:00F0"],
+ans:0,
+exp:"考查中断向量寻址和8086的<strong>“高高低低”小端存储原则</strong>。<br><br>① 计算INT 11H在IVT中的物理首地址：<span class='formula'>11H × 4 = 44H</span><br>② 从内存dump中找0044H开始的4个字节：0040H列对应B3, 0041→18, 0042→8A, 0043→CC, <strong>0044→4D, 0045→F8, 0046→00, 0047→F0</strong>。<br>③ 按照<strong>“低地址存低字节、低两字节为偏移量IP、高两字节为段基址CS”</strong>规则解析：<br>· IP（偏移量）占低两字节（0044H,0045H）：4D F8 → 拼接为<strong>F84DH</strong>（低字节在前=小端）。<br>· CS（段基址）占高两字节（0046H,0047H）：00 F0 → 拼接为<strong>F000H</strong>。<br>④ 组合：CS:IP = <strong>F000:F84D</strong>。所以选A。" },
+{ id:54, module:"模块六：中断系统", type:"tf",
+q:"8086/8088 CPU的中断系统分为内部中断和外部中断两大类。",
+opts:["对","错"],
+ans:0,
+exp:"8086/8088的中断源按<strong>产生的位置和方式</strong>可以分为两大类：<br>· <strong>内部中断（软件中断）</strong>：由CPU内部执行指令时产生，包括：除法错中断（0号）、单步中断（1号）、断点中断（INT 3）、溢出中断（INTO）、以及软件中断指令INT n。这些中断不受IF标志影响。<br>· <strong>外部中断（硬件中断）</strong>：由外部硬件设备通过CPU专用引脚向CPU请求，包括：NMI（非屏蔽中断，通过NMI引脚）、INTR（可屏蔽中断，通过INTR引脚）。可屏蔽中断受IF标志控制。" },
+{ id:55, module:"模块六：中断系统", type:"single",
+q:"8086/8088 CPU中断系统的中断优先级最高顺序为（ ）。",
+opts:["可屏蔽中断, 非屏蔽中断, 内部中断","非屏蔽中断, 可屏蔽中断, 内部中断","内部中断, 可屏蔽中断, 非屏蔽中断","内部中断, 非屏蔽中断, 可屏蔽中断"],
+ans:3,
+exp:"8086中断系统的硬件判优优先级（多个中断同时到来时CPU响应的先后顺序）从高到低依次为：<br>① <strong>内部中断</strong>（除以0、单步、INT n等）——拥有最高响应特权，因为它们是CPU自身执行过程中产生的，必须立即处理。<br>② <strong>非屏蔽中断NMI</strong>——优先级次之，用于紧急事件（如电源掉电告警、内存奇偶校验错等），不可被屏蔽。<br>③ <strong>可屏蔽中断INTR</strong>——优先级最低，且受IF标志位控制（IF=0时CPU不响应INTR）。<br>④ 单步中断的优先级实际上最低（在所有中断处理完成后才检查TF标志）。<br>正确顺序：内部中断 > NMI > INTR > 单步。" },
+{ id:56, module:"模块六：中断系统", type:"single",
+q:"当8086 CPU的INTR=1，且中断允许位IF=1时，则CPU完成（ ）后，响应该中断请求，进行中断处理。",
+opts:["当前时钟周期","当前总线周期","当前指令周期","下一个指令周期"],
+ans:2,
+exp:"为了保证正在执行的指令不被中途打断而导致系统状态紊乱，8086 CPU即使在开中断（IF=1）且INTR=1的情况下，<strong>也必须坚持等到当前正在执行的这一条指令全部执行完毕后</strong>（即当前指令周期结束），才会在指令的最后一个时钟周期去采样INTR引脚并响应中断。<br>这是CPU设计的基本原则：<strong>指令是不可分割的最小执行单位</strong>——不能在指令执行到一半时插入中断处理（那样会破坏ALU的中间结果、标志位状态等）。所以选“当前指令周期”。" },
+{ id:57, module:"模块六：中断系统", type:"tf",
+q:"中断指令与CALL指令不同之处在于中断指令还要将标志寄存器FR压入堆栈。",
+opts:["对","错"],
+ans:0,
+exp:"<strong>CALL</strong>指令执行时<strong>仅将返回地址（CS:IP）压栈</strong>：近调用只压IP，远调用压CS和IP。<br><strong>中断响应</strong>时，CPU不仅要保存断点地址（CS和IP），<strong>还需要将标志寄存器FLAGS压入堆栈</strong>。这是中断与CALL最关键的差异之一。<br>为什么中断要压FLAGS？因为中断随时可能发生（异步的），中断处理程序可能会改变标志位，而主程序返回后需要恢复被中断前的标志状态。<br>返回指令也不同：CALL用RET/RETF返回，中断用IRET返回（IRET多弹出一个FLAGS）。" },
+{ id:58, module:"模块六：中断系统", type:"single",
+q:"响应可屏蔽中断后，8086/8088 CPU是在（ ）读取中断向量号。",
+opts:["保存断点后","第一中断响应周期","第二中断响应周期","T4前沿"],
+ans:2,
+exp:"8086响应INTR可屏蔽中断的过程需要两个连续的中断响应总线周期（INTA周期）：<br>· <strong>第一INTA周期</strong>：CPU发出中断响应信号（INTA=0），通知中断控制器（如8259A）“你的中断请求已被接受”——但这个周期<strong>不读取数据</strong>。<br>· <strong>第二INTA周期</strong>：CPU再次发出INTA=0，这一次<strong>中断控制器通过数据总线将中断类型号（8位）送给CPU</strong>，CPU锁存该类型号。<br>之后CPU将FLAGS、CS、IP依次压栈，然后用类型号×4查IVT获取ISR入口地址。所以答案是第二INTA周期。" },
+
+// ===== 模块七：8253定时计数器 (10题) =====
+{ id:59, module:"模块七：8253定时计数器", type:"single",
+q:"假设A6=1，A7、A5、A4、A3、A2均为0时，8253片选有效，则控制字端口地址应为（ ）。",
+opts:["40H","41H","42H","43H"],
+ans:3,
+exp:"8253共有4个端口地址。从题目条件看，当A7~A2=100000（A6=1，其余为0）时片选有效，结合A1A0：<br>· A1A0=00 → 40H（计数器0）<br>· A1A0=01 → 41H（计数器1）<br>· A1A0=10 → 42H（计数器2）<br>· A1A0=11 → <strong>43H（控制字寄存器）</strong><br>控制字端口对应A1A0=11，所以地址为43H。注意：向控制字端口写入的是方式控制字，读/写计数器初值才是通过对应的计数器端口。" },
+{ id:60, module:"模块七：8253定时计数器", type:"tf",
+q:"8253的计数器在输入脉冲控制下完成加1计数。",
+opts:["对","错"],
+ans:1,
+exp:"<strong>8253的计数器采用减1计数方式</strong>——写入计数初值后，每来一个CLK时钟脉冲的下降沿，计数值就减1，当计数值减到0时输出信号发生变化（具体变化取决于工作方式）。<strong>不是加1计数！</strong><br>这是一个非常容易考的知识点。8253/8254都是减1计数器，而某些其他定时器芯片（如MC6840）是加1计数器——不要混淆。" },
+{ id:61, module:"模块七：8253定时计数器", type:"single",
+q:"若对8253写入控制字的值为96H，说明设定8253的（ ）。",
+opts:["计数器1工作在方式2且只写入低8位计数初值","计数器1工作在方式2且一次写入16位计数初值","计数器2工作在方式3且只写入低8位计数初值","计数器2工作在方式3且一次写入16位计数初值"],
+ans:2,
+exp:"<strong>96H = 1001 0110B</strong>，按8253控制字格式逐位解析：<br>· D7D6（SC1SC0）= <strong>10</strong> → 选择<strong>计数器2</strong>（01=计数器1, 10=计数器2, 11=非法）。<br>· D5D4（RL1RL0）= <strong>01</strong> → <strong>只读/写低8位</strong>（00=锁存, 01=只低8位, 10=只高8位, 11=先低后高）。<br>· D3D2D1（M2M1M0）= <strong>011</strong> → <strong>工作方式3</strong>（方波发生器）。<br>· D0（BCD）= <strong>0</strong> → 16位二进制计数。<br>所以96H设定的是：<strong>计数器2、方式3（方波）、只写低8位、二进制计数</strong>。选C。<br>（注意：原文档中此处答案解析和正确答案标注有出入，这里给出的是根据96H实际二进制值正确解析的结果。）" },
+{ id:62, module:"模块七：8253定时计数器", type:"single",
+q:"当8253控制字设置为3AH时，CPU将向8253（ ）初值。",
+opts:["一次写入8位","一次写入16位","先写入低8位，再写入高8位","上述三种情况均不对"],
+ans:2,
+exp:"<strong>3AH = 0011 1010B</strong>，解析控制字的RL1RL0位（D5D4）：<br>· D5D4 = <strong>11</strong> → 表示计数初值<strong>先写低8位，再写高8位</strong>（16位分两次写入同一端口地址）。<br>RL1RL0位决定了读/写计数初值的方式：<br>· 00：计数器锁存（用于读当前计数值前锁定）。<br>· 01：只读/写低8位。<br>· 10：只读/写高8位。<br>· 11：先读/写低8位，再读/写高8位。<br>3AH的RL1RL0=11，所以选C。" },
+{ id:63, module:"模块七：8253定时计数器", type:"single",
+q:"只采用硬件触发启动计数的工作方式为（ ）。",
+opts:["方式0和方式1","方式2和方式4","方式1和方式5","方式3和方式5"],
+ans:2,
+exp:"8253的6种工作方式的启动/触发机制：<br>· <strong>方式0（计数结束中断）</strong>：软件触发（写入计数值后立即启动）。<br>· <strong>方式1（硬件可重触发单稳态）</strong>：<strong>硬件触发</strong>（靠GATE上升沿启动）。<br>· <strong>方式2（频率发生器/分频器）</strong>：软/硬件皆可触发。<br>· <strong>方式3（方波发生器）</strong>：软/硬件皆可触发。<br>· <strong>方式4（软件触发选通）</strong>：软件触发。<br>· <strong>方式5（硬件触发选通）</strong>：<strong>硬件触发</strong>（靠GATE上升沿启动）。<br>所以<strong>方式1和方式5</strong>只采用硬件触发启动计数。选C。" },
+{ id:64, module:"模块七：8253定时计数器", type:"single",
+q:"8253/8254为可编程定时/计数器，包含有（ ）计数通道。",
+opts:["三个8位","三个16位","四个8位","四个16位"],
+ans:1,
+exp:"<strong>8253/8254内部包含3个独立的16位计数器通道</strong>（计数器0、1、2），每个通道都有自己的CLK、GATE、OUT引脚，可以独立工作在不同的方式下。虽然是16位计数器，但可通过RL1RL0位选择只读写高/低8位，或分两次读写16位。8254是8253的增强版，功能兼容但频率更高（可到10MHz）。" },
+{ id:65, module:"模块七：8253定时计数器", type:"single",
+q:"8253/8254为可编程定时/计数器，每个计数通道具有（ ）种工作方式。",
+opts:["3","4","5","6"],
+ans:3,
+exp:"8253/8254每个计数器共有<strong>6种工作方式</strong>：方式0~方式5。<br>· 方式0：计数结束中断（Interrupt on Terminal Count）<br>· 方式1：硬件可重触发单稳态（Programmable One-shot）<br>· 方式2：频率发生器/分频器（Rate Generator）<br>· 方式3：方波发生器（Square Wave Generator）<br>· 方式4：软件触发选通（Software Triggered Strobe）<br>· 方式5：硬件触发选通（Hardware Triggered Strobe）<br>记忆口诀：“0中断、1单稳、2分频、3方波、4软选通、5硬选通”。" },
+{ id:66, module:"模块七：8253定时计数器", type:"single",
+q:"8253/8254为可编程计数器，其占有（ ）个口地址。",
+opts:["1","2","3","4"],
+ans:3,
+exp:"8253共有<strong>3个计数器端口（计数器0、1、2各一个数据端口）和1个控制字端口</strong>，因此总共占用<strong>4个I/O端口地址</strong>（基地址+0→计数器0，基地址+1→计数器1，基地址+2→计数器2，基地址+3→控制寄存器）。通过A1A0两根地址线在片内区分这4个端口。" },
+{ id:67, module:"模块七：8253定时计数器", type:"single",
+q:"当8253的控制线引脚 RD=L, A0=H, A1=L, CS=L 时，完成的工作为（ ）。",
+opts:["读计数器0中的计数值","读计数器1中的计数值","读计数器2中的计数值","读控制字的状态"],
+ans:1,
+exp:"8253端口选择由A1A0决定：<br>· A1A0=00 → 计数器0<br>· <strong>A1A0=01 → 计数器1</strong><br>· A1A0=10 → 计数器2<br>· A1A0=11 → 控制字寄存器<br>题目中A1=L（低/0），A0=H（高/1），即A1A0=01，选择<strong>计数器1</strong>。RD有效（L=低电平）表示读操作，CS有效（L=低电平）表示芯片被选中。<br>所以整体操作是：<strong>读计数器1的当前计数值</strong>。选B。" },
+{ id:68, module:"模块七：8253定时计数器", type:"single",
+q:"若使8253的计数器1发出1kHz的方波（设输入时钟频率fi=2MHz），其控制字应为（ ）。",
+opts:["36H","76H","B6H","56H"],
+ans:1,
+exp:"要输出方波→选择<strong>方式3（方波发生器）</strong>。<br>控制字各位确定：<br>· <strong>SC1SC0=01</strong>：选择计数器1。<br>· <strong>RL1RL0=11</strong>：先写低8位再写高8位（计数初值较大，需16位）。<br>· <strong>M2M1M0=011</strong>：方式3。<br>· <strong>BCD=0</strong>：二进制计数。<br>组合：<span class='formula'>01 11 011 0 = 01110110B = 76H</span><br>验证计数初值：N = fi/fo = 2MHz/1kHz = 2000，2000<65536（16位够用）。所以控制字=76H是正确的。" }
+];
+
+// ==================== STATE ====================
+let currentIndex = 0;
+let selectedQuestions = [];
+let userAnswers = {};       // {qid: userAnswer}
+let timerInterval = null;
+let timerSeconds = 0;
+let quizStarted = false;
+let quizFinished = false;
+let currentTab = 'quiz';
+let enabledModules = new Set(questions.map(q => q.module));
+
+function getModuleList() {
+return [...new Set(questions.map(q => q.module))];
+}
+
+function getErrorBook() {
+try { return JSON.parse(localStorage.getItem('mp_errors') || '[]'); } catch(e) { return []; }
+}
+function saveError(qid, module) {
+const errors = getErrorBook();
+if (!errors.find(e => e.qid === qid)) {
+errors.push({ qid, module, time: new Date().toISOString() });
+localStorage.setItem('mp_errors', JSON.stringify(errors));
+}
+}
+function removeError(qid) {
+const errors = getErrorBook().filter(e => e.qid !== qid);
+localStorage.setItem('mp_errors', JSON.stringify(errors));
+}
+function clearErrors() {
+localStorage.setItem('mp_errors', '[]');
+}
+
+// ==================== RENDER ====================
+function filterQuestions() {
+return questions.filter(q => enabledModules.has(q.module));
+}
+
+function shuffle(arr) {
+const a = [...arr];
+for (let i = a.length - 1; i > 0; i--) {
+const j = Math.floor(Math.random() * (i + 1));
+[a[i], a[j]] = [a[j], a[i]];
+}
+return a;
+}
+
+function buildQuiz() {
+selectedQuestions = filterQuestions();
+currentIndex = 0;
+userAnswers = {};
+timerSeconds = 0;
+quizStarted = false;
+quizFinished = false;
+document.getElementById('quizArea').style.display = 'block';
+document.getElementById('scoreScreen').style.display = 'none';
+document.getElementById('errorScreen').style.display = 'none';
+document.getElementById('tabBar').style.display = 'flex';
+switchTab('quiz');
+showQuestion();
+updateStats();
+updateErrorCount();
+clearInterval(timerInterval);
+document.getElementById('timer').textContent = '00:00';
+}
+
+function showQuestion() {
+if (selectedQuestions.length === 0) {
+document.getElementById('questionCard').innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-secondary)">请至少选择一个模块。</p>';
+return;
+}
+const q = selectedQuestions[currentIndex];
+let html = '';
+html += `<div class="q-module-tag">${q.module}</div>`;
+const typeLabels = { single:'单选题', tf:'判断题', fill:'填空题' };
+html += `<span class="q-type-tag">${typeLabels[q.type] || '单选题'}</span>`;
+html += `<div class="q-text">${q.q}</div>`;
+
+if (q.type === 'fill') {
+html += '<div class="fill-answer">';
+// Generate fill inputs based on number of answers
+const fillCount = Array.isArray(q.ans) ? q.ans.length : 1;
+for (let i = 0; i < fillCount; i++) {
+const val = userAnswers[q.id] ? userAnswers[q.id][i] || '' : '';
+html += `<span style="margin-right:8px;">(${i+1})</span><input type="text" id="fill_${q.id}_${i}" value="${escapeHtml(val)}" placeholder="输入答案" autocomplete="off" ${userAnswers[q.id] !== undefined ? 'disabled' : ''}> `;
+}
+html += userAnswers[q.id] === undefined ? '<button class="btn btn-primary btn-sm" onclick="submitFill(' + q.id + ')" style="margin-left:8px;">提交</button>' : '';
+html += '</div>';
+} else if (q.type === 'tf') {
+html += '<div class="options">';
+const keys = ['A', 'B'];
+for (let i = 0; i < q.opts.length; i++) {
+let cls = 'option';
+if (userAnswers[q.id] !== undefined) cls += ' disabled';
+if (userAnswers[q.id] === i) {
+cls += (i === q.ans ? ' correct' : ' wrong');
+}
+html += `<div class="${cls}" data-idx="${i}" onclick="selectOption(this, ${q.id}, ${i})"><span class="option-key">${keys[i]}</span><span>${q.opts[i]}</span></div>`;
+}
+html += '</div>';
+} else {
+html += '<div class="options">';
+const keys = ['A', 'B', 'C', 'D'];
+for (let i = 0; i < q.opts.length; i++) {
+let cls = 'option';
+if (userAnswers[q.id] !== undefined) cls += ' disabled';
+if (userAnswers[q.id] === i) {
+cls += (i === q.ans ? ' correct' : ' wrong');
+}
+html += `<div class="${cls}" data-idx="${i}" onclick="selectOption(this, ${q.id}, ${i})"><span class="option-key">${keys[i]}</span><span>${q.opts[i]}</span></div>`;
+}
+html += '</div>';
+}
+
+// Show explanation after answering
+if (userAnswers[q.id] !== undefined) {
+const isCorrect = q.type === 'fill' ? arraysEqual(userAnswers[q.id], q.ans) : userAnswers[q.id] === q.ans;
+html += `<div style="margin-top:12px;font-weight:700;color:${isCorrect ? 'var(--success)' : 'var(--danger)'};">${isCorrect ? '✓ 回答正确' : '✗ 回答错误'}</div>`;
+html += `<div class="explanation show">${q.exp}</div>`;
+}
+
+document.getElementById('questionCard').innerHTML = html;
+updateStats();
+}
+
+function escapeHtml(str) {
+if (!str) return '';
+return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function arraysEqual(a, b) {
+if (!Array.isArray(a) || !Array.isArray(b)) return false;
+if (a.length !== b.length) return false;
+return a.every((v, i) => String(v).trim() === String(b[i]).trim());
+}
+
+function selectOption(el, qid, idx) {
+if (userAnswers[qid] !== undefined) return;
+if (!quizStarted) startTimer();
+userAnswers[qid] = idx;
+document.querySelectorAll('#questionCard .option').forEach(o => o.classList.add('disabled'));
+el.classList.add('selected');
+
+const q = selectedQuestions[currentIndex];
+const isCorrect = idx === q.ans;
+
+if (!isCorrect) {
+saveError(qid, q.module);
+updateErrorCount();
+} else {
+// If correct answer earned on retry (was in error book), remove it
+removeError(qid);
+updateErrorCount();
+}
+
+showQuestion();
+updateStats();
+}
+
+function submitFill(qid) {
+if (!quizStarted) startTimer();
+const q = questions.find(qq => qq.id === qid);
+const count = Array.isArray(q.ans) ? q.ans.length : 1;
+const answers = [];
+for (let i = 0; i < count; i++) {
+const input = document.getElementById('fill_' + qid + '_' + i);
+answers.push(input ? input.value.trim() : '');
+}
+userAnswers[qid] = answers;
+
+const isCorrect = arraysEqual(answers, q.ans);
+if (!isCorrect) {
+saveError(qid, q.module);
+updateErrorCount();
+} else {
+removeError(qid);
+updateErrorCount();
+}
+
+showQuestion();
+updateStats();
+}
+
+function updateStats() {
+const total = selectedQuestions.length;
+const answered = Object.keys(userAnswers).filter(k => {
+const q = questions.find(qq => qq.id === parseInt(k));
+return q && selectedQuestions.includes(q);
+}).length;
+const correct = Object.entries(userAnswers).filter(([k, v]) => {
+const q = questions.find(qq => qq.id === parseInt(k));
+if (!q || !selectedQuestions.includes(q)) return false;
+if (q.type === 'fill') return arraysEqual(v, q.ans);
+return v === q.ans;
+}).length;
+
+document.getElementById('qCounter').textContent = `第 ${total > 0 ? currentIndex + 1 : 0}/${total} 题`;
+document.getElementById('progressBar').style.width = total > 0 ? ((answered / total) * 100) + '%' : '0%';
+document.getElementById('scoreDisplay').textContent = `得分: ${correct}/${answered} (${total}题)`;
+
+// Check if all answered
+if (answered === total && total > 0 && !quizFinished) {
+finishQuiz();
+}
+}
+
+function finishQuiz() {
+quizFinished = true;
+clearInterval(timerInterval);
+const total = selectedQuestions.length;
+const correct = Object.entries(userAnswers).filter(([k, v]) => {
+const q = questions.find(qq => qq.id === parseInt(k));
+if (!q) return false;
+if (q.type === 'fill') return arraysEqual(v, q.ans);
+return v === q.ans;
+}).length;
+
+document.getElementById('quizArea').style.display = 'none';
+document.getElementById('tabBar').style.display = 'none';
+document.getElementById('scoreScreen').style.display = 'block';
+const mins = Math.floor(timerSeconds / 60);
+const secs = timerSeconds % 60;
+const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+document.getElementById('scoreScreen').innerHTML = `
+<h2>🎉 测验完成！</h2>
+<div class="score-big">${pct}分</div>
+<div class="score-detail">
+总题数：${total} 题<br>
+正确：${correct} 题<br>
+错误：${total - correct} 题<br>
+用时：${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}
+</div>
+<button class="btn btn-primary" onclick="buildQuiz()" style="margin:8px;">重新开始</button>
+<button class="btn" onclick="reviewErrors()" style="margin:8px;">复习错题</button>
+`;
+}
+
+function startTimer() {
+quizStarted = true;
+timerInterval = setInterval(() => {
+timerSeconds++;
+const m = Math.floor(timerSeconds / 60);
+const s = timerSeconds % 60;
+document.getElementById('timer').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}, 1000);
+}
+
+function goNext() {
+if (currentIndex < selectedQuestions.length - 1) {
+currentIndex++;
+showQuestion();
+}
+}
+
+function goPrev() {
+if (currentIndex > 0) {
+currentIndex--;
+showQuestion();
+}
+}
+
+// ==================== NAVIGATION ====================
+document.getElementById('btnNext').addEventListener('click', goNext);
+document.getElementById('btnPrev').addEventListener('click', goPrev);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+if (e.target.tagName === 'INPUT') return;
+if (currentTab !== 'quiz' || quizFinished) return;
+
+const keys = ['1','2','3','4'];
+const idx = keys.indexOf(e.key);
+if (idx >= 0 && selectedQuestions.length > 0) {
+const q = selectedQuestions[currentIndex];
+if (userAnswers[q.id] !== undefined) return; // already answered
+const opts = document.querySelectorAll('#questionCard .option');
+if (opts[idx]) {
+selectOption(opts[idx], q.id, idx);
+}
+}
+if (e.key === 'ArrowRight' || e.key === ' ') {
+e.preventDefault();
+goNext();
+}
+if (e.key === 'ArrowLeft') {
+e.preventDefault();
+goPrev();
+}
+});
+
+// ==================== MODULE FILTER ====================
+function renderModuleFilter() {
+const modules = getModuleList();
+const el = document.getElementById('moduleFilter');
+el.innerHTML = modules.map(m => {
+const active = enabledModules.has(m);
+return `<span class="module-chip${active ? ' active' : ''}" data-module="${escapeHtml(m)}">${escapeHtml(m)}</span>`;
+}).join('');
+// Add "select all" chip
+el.innerHTML += `<span class="module-chip" id="chipSelectAll" style="font-weight:600;">${enabledModules.size === modules.length ? '取消全选' : '全选'}</span>`;
+
+el.querySelectorAll('.module-chip[data-module]').forEach(chip => {
+chip.addEventListener('click', () => {
+const m = chip.dataset.module;
+if (enabledModules.has(m)) {
+if (enabledModules.size > 1) enabledModules.delete(m);
+} else {
+enabledModules.add(m);
+}
+renderModuleFilter();
+buildQuiz();
+});
+});
+document.getElementById('chipSelectAll').addEventListener('click', () => {
+if (enabledModules.size === modules.length) {
+enabledModules = new Set([modules[0]]);
+} else {
+enabledModules = new Set(modules);
+}
+renderModuleFilter();
+buildQuiz();
+});
+}
+
+// ==================== ERROR BOOK ====================
+function updateErrorCount() {
+document.getElementById('errorCount').textContent = getErrorBook().length;
+}
+
+function renderErrorBook() {
+const errors = getErrorBook();
+const el = document.getElementById('errorScreen');
+el.style.display = 'block';
+document.getElementById('quizArea').style.display = 'none';
+document.getElementById('scoreScreen').style.display = 'none';
+
+if (errors.length === 0) {
+el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">📋 错题本为空，继续加油！</div>';
+return;
+}
+
+let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h3>错题本 (' + errors.length + '题)</h3>';
+html += '<button class="btn btn-sm" onclick="clearErrors();updateErrorCount();renderErrorBook();buildQuiz();">清空错题本</button></div>';
+html += '<div class="error-list">';
+let allModulesInErrors = new Set();
+// Show newest first
+[...errors].reverse().forEach((err, idx) => {
+const q = questions.find(qq => qq.id === err.qid);
+if (!q) return;
+allModulesInErrors.add(q.module);
+html += `<div class="error-item" onclick="startErrorReview(${q.id})">`;
+html += `<div class="q-module-tag">${q.module}</div>`;
+html += `<div class="q-text">${q.q.substring(0, 120)}${q.q.length > 120 ? '...' : ''}</div>`;
+html += `<div style="font-size:.75rem;color:var(--text-secondary);">添加于 ${new Date(err.time).toLocaleString('zh-CN')}</div>`;
+html += '</div>';
+});
+html += '</div>';
+
+// Add "review all errors" button if there are errors
+if (errors.length > 0) {
+html += `<button class="btn btn-primary" style="margin-top:16px;" onclick="reviewAllErrors()">复习全部错题</button>`;
+}
+el.innerHTML = html;
+}
+
+function startErrorReview(qid) {
+// Find the question in the full list
+const q = questions.find(qq => qq.id === qid);
+if (!q) return;
+// Enable all modules, set to just this question
+enabledModules = new Set(getModuleList());
+renderModuleFilter();
+buildQuiz();
+// Navigate to this question
+const idx = selectedQuestions.findIndex(qq => qq.id === qid);
+if (idx >= 0) {
+currentIndex = idx;
+showQuestion();
+updateStats();
+switchTab('quiz');
+}
+}
+
+function reviewAllErrors() {
+const errorIds = new Set(getErrorBook().map(e => e.qid));
+enabledModules = new Set(getModuleList());
+renderModuleFilter();
+buildQuiz();
+// Filter to only error questions
+selectedQuestions = selectedQuestions.filter(q => errorIds.has(q.id));
+currentIndex = 0;
+userAnswers = {};
+timerSeconds = 0;
+quizStarted = false;
+quizFinished = false;
+clearInterval(timerInterval);
+document.getElementById('timer').textContent = '00:00';
+document.getElementById('errorScreen').style.display = 'none';
+document.getElementById('scoreScreen').style.display = 'none';
+document.getElementById('quizArea').style.display = 'block';
+document.getElementById('tabBar').style.display = 'flex';
+switchTab('quiz');
+showQuestion();
+updateStats();
+}
+
+function reviewErrors() {
+document.getElementById('scoreScreen').style.display = 'none';
+renderErrorBook();
+switchTab('errors');
+}
+
+function switchTab(tab) {
+currentTab = tab;
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+}
+
+// ==================== TAB SWITCHING ====================
+document.getElementById('tabBar').addEventListener('click', (e) => {
+const btn = e.target.closest('.tab-btn');
+if (!btn) return;
+const tab = btn.dataset.tab;
+switchTab(tab);
+if (tab === 'quiz') {
+document.getElementById('quizArea').style.display = 'block';
+document.getElementById('scoreScreen').style.display = 'none';
+document.getElementById('errorScreen').style.display = 'none';
+showQuestion();
+} else if (tab === 'errors') {
+renderErrorBook();
+}
+});
+
+// ==================== BUTTONS ====================
+document.getElementById('btnShuffle').addEventListener('click', () => {
+selectedQuestions = shuffle(selectedQuestions);
+currentIndex = 0;
+userAnswers = {};
+timerSeconds = 0;
+quizStarted = false;
+quizFinished = false;
+clearInterval(timerInterval);
+document.getElementById('timer').textContent = '00:00';
+document.getElementById('scoreScreen').style.display = 'none';
+document.getElementById('errorScreen').style.display = 'none';
+document.getElementById('quizArea').style.display = 'block';
+switchTab('quiz');
+showQuestion();
+updateStats();
+});
+
+document.getElementById('btnReset').addEventListener('click', buildQuiz);
+document.getElementById('btnErrorBook').addEventListener('click', () => {
+renderErrorBook();
+switchTab('errors');
+});
+
+// Theme toggle
+const themeBtn = document.getElementById('btnTheme');
+themeBtn.addEventListener('click', () => {
+document.documentElement.classList.toggle('dark');
+const isDark = document.documentElement.classList.contains('dark');
+localStorage.setItem('mp_theme', isDark ? 'dark' : 'light');
+themeBtn.textContent = isDark ? '☀️' : '🌓';
+});
+
+// ==================== INIT ====================
+function init() {
+const savedTheme = localStorage.getItem('mp_theme');
+if (savedTheme === 'dark') {
+document.documentElement.classList.add('dark');
+themeBtn.textContent = '☀️';
+}
+renderModuleFilter();
+buildQuiz();
+updateErrorCount();
+}
+
+init();
+</script>
+</body>
+</html>

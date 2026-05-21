@@ -25,7 +25,6 @@
 
 ## 使用方式
 
-1. 下载 `微机原理学习通题目.html`
-2. 浏览器打开，开始刷题
+**在线版**：https://louisla1.github.io/microcomputer-principles-quiz/
 
-或直接访问在线版：**[GitHub Pages 链接]**（开启后可用）
+本地使用：下载 `微机原理学习通题目.html`，浏览器打开即可。
