@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学术文献智能筛选系统</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="header-icon">📚</span>
+      <h1 class="header-title">学术文献智能筛选系统</h1>
+    </div>
+    <div class="header-actions">
+      <button id="btn-settings" class="btn btn-ghost" title="API 设置">⚙️ 设置</button>
+      <button id="btn-history" class="btn btn-ghost" title="历史记录">📋 历史</button>
+    </div>
+  </header>
+
+  <nav class="step-nav" id="step-nav">
+    <ol class="step-list">
+      <li class="step-item active" data-step="upload">
+        <span class="step-number">①</span>
+        <span class="step-label">导入文献</span>
+      </li>
+      <li class="step-item" data-step="config">
+        <span class="step-number">②</span>
+        <span class="step-label">研究方向</span>
+      </li>
+      <li class="step-item" data-step="screening">
+        <span class="step-number">③</span>
+        <span class="step-label">开始筛选</span>
+      </li>
+      <li class="step-item" data-step="results">
+        <span class="step-number">④</span>
+        <span class="step-label">查看结果</span>
+      </li>
+      <li class="step-item" data-step="export">
+        <span class="step-number">⑤</span>
+        <span class="step-label">导出报告</span>
+      </li>
+    </ol>
+  </nav>
+
+  <main class="main-content" id="main-content">
+    <section class="step-panel" id="panel-upload"></section>
+    <section class="step-panel hidden" id="panel-config"></section>
+    <section class="step-panel hidden" id="panel-screening"></section>
+    <section class="step-panel hidden" id="panel-results"></section>
+    <section class="step-panel hidden" id="panel-export"></section>
+  </main>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal-box" id="modal-box"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
