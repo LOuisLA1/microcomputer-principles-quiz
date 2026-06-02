@@ -151,10 +151,15 @@ export async function initUpload() {
     : '';
 
   // Build dupe info from saved state
-  const dupeCount = AppState._dupeCount || 0;
+  const dupes = AppState._dupes || [];
+  const dupeCount = dupes.length;
   const dupeSummary = dupeCount > 0
     ? `<span style="color:#F59E0B;cursor:pointer;" id="dupe-toggle">${dupeCount} 组重复 ⚠️ 点击查看详情</span>`
     : '无';
+
+  const dupeDetailRows = dupes.length > 0
+    ? dupes.map(d => `<tr><td>${d.i + 1}</td><td>${escapeHtml(d.title.slice(0, 50))}</td><td>${d.j + 1}</td></tr>`).join('')
+    : '';
 
   panel.innerHTML = `
     <div class="panel-header">
@@ -182,6 +187,17 @@ export async function initUpload() {
             <tbody>${anomalyDetailRows}</tbody>
           </table>
         </div>
+      </div>` : ''}
+      ${dupes.length > 0 ? `
+      <div id="dupe-detail" style="display:none;margin-top:12px;">
+        <div style="font-weight:500;margin-bottom:8px;font-size:13px;">重复文献组（标题相似度 >90%）：</div>
+        <div class="preview-table-wrap" style="max-height:200px;">
+          <table class="preview-table">
+            <thead><tr><th style="width:40px;">序号</th><th>标题</th><th style="width:60px;">重复项</th></tr></thead>
+            <tbody>${dupeDetailRows}</tbody>
+          </table>
+        </div>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;">第2列为原文，第3列为与原文重复的文献序号。筛选时会自动去重。</p>
       </div>` : ''}
     </div>
     ${imported ? `
@@ -258,7 +274,7 @@ export async function initUpload() {
       AppState.papers = paperList;
       AppState._fileName = file.name;
       AppState._fileCols = headers.length + ' 列';
-      AppState._dupeCount = dupes.length;
+      AppState._dupes = dupes;
 
       showToast(`成功导入 ${paperList.length} 篇文献`, 'success');
       initUpload(); // Re-render with imported state
@@ -273,7 +289,7 @@ export async function initUpload() {
     AppState.abstractColumn = '';
     AppState._fileName = '';
     AppState._fileCols = '';
-    AppState._dupeCount = 0;
+    AppState._dupes = [];
     if (input) input.value = '';
     initUpload(); // Re-render fresh
   }
@@ -291,9 +307,10 @@ export async function initUpload() {
     if (detail) detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
   });
 
-  // Dupe toggle (placeholder for now)
+  // Dupe toggle
   document.getElementById('dupe-toggle')?.addEventListener('click', () => {
-    showToast('重复文献检测基于标题相似度 >90%，已被自动标记', 'info');
+    const detail = document.getElementById('dupe-detail');
+    if (detail) detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
   });
 
   // Drag & drop (only if not imported)
