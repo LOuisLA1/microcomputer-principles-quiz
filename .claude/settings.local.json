@@ -1,0 +1,75 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "Bash(git clone *)",
+      "Bash(git config *)",
+      "Bash(env)",
+      "Bash(nslookup github.com)",
+      "Read(//tmp/**)",
+      "Read(//tmp/superpowers/**)",
+      "Bash(claude plugins *)",
+      "Bash(claude plugin *)",
+      "Bash(mkdir -p \"D:/claude code/.claude/plugins\")",
+      "Bash(cp -r /tmp/superpowers \"D:/claude code/.claude/plugins/superpowers\")",
+      "Bash(npx skills *)",
+      "Bash(mkdir -p \"D:/claude code/ppt/images\")",
+      "Bash(cp \"D:/claude code/.agents/skills/guizang-ppt-skill/assets/template-swiss.html\" \"D:/claude code/ppt/index.html\")",
+      "Bash(start *)",
+      "Bash(pip install *)",
+      "Bash(python generate_pptx.py)",
+      "Bash(where claude *)",
+      "Bash(where wt *)",
+      "Bash(reg add *)",
+      "Bash(git *)",
+      "Bash(curl *)",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(d['name']\\) for d in data]\")",
+      "Bash(pip list *)",
+      "WebSearch",
+      "Bash(python generate_docx.py)",
+      "Bash(gh api *)",
+      "Bash(gh auth *)",
+      "WebFetch(domain:news.qiniu.com)",
+      "Bash(/plugin marketplace *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(python)",
+      "Bash(python -c \"import PyPDF2; print\\('PyPDF2 available'\\)\")",
+      "Bash(python -c \"import pdfminer; print\\('pdfminer available'\\)\")",
+      "Bash(python extract_pdf.py)",
+      "Bash(pdftotext -layout \"微机学习通.pdf\" \"微机学习通.txt\")",
+      "Bash(pdftotext \"微机学习通.pdf\" -)",
+      "Bash(pdftotext \"微机学习通.pdf\" temp.txt)",
+      "Bash(python ocr_extract.py)",
+      "Bash(pdfinfo \"./微机学习通.pdf\")",
+      "Bash(pandoc \"D:\\\\claude code\\\\微机原理随堂测验及核心题目精选解析.docx\" -o \"D:\\\\claude code\\\\output.md\")",
+      "Bash(python *)",
+      "Bash(ls D:\\\\\\\\claude code\\\\\\\\unpacked\\\\\\\\word\\\\\\\\media *)",
+      "Bash(wc *)",
+      "Bash(node *)",
+      "Bash(python3 fix_quotes.py)",
+      "Bash(python3 *)",
+      "Bash(grep *)",
+      "Bash(gh --version)",
+      "Bash(winget install *)",
+      "Bash(/c/Program Files/GitHub CLI/gh auth *)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh\" repo create 微机原理期末测验 --public --source=. --remote=origin --push)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh\" repo rename \"microcomputer-principles-quiz\" --repo \"LOuisLA1/-\")",
+      "Bash(/c/Program Files/GitHub CLI/gh repo *)",
+      "Bash(/c/Program Files/GitHub CLI/gh api *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start"
+          }
+        ]
+      }
+    ]
+  }
+}

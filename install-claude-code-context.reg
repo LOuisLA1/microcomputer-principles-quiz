@@ -1,0 +1,13 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\shell\ClaudeCode]
+@="Claude Code"
+
+[HKEY_CLASSES_ROOT\Directory\shell\ClaudeCode\command]
+@="wt.exe -d \"%V\" --title \"Claude Code\" cmd /k claude"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\ClaudeCode]
+@="Claude Code"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\ClaudeCode\command]
+@="wt.exe -d \"%V\" --title \"Claude Code\" cmd /k claude"

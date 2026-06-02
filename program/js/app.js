@@ -228,14 +228,25 @@ function formatDate(isoStr) {
 
 // ===== Init =====
 async function init() {
+  // Check ES module support
+  if (typeof import.meta === 'undefined') {
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;"><h2>浏览器不支持</h2><p>请使用现代浏览器（Chrome/Edge/Firefox）打开</p></div>';
+    return;
+  }
+
   AppState.settings = loadSettings();
   setupGlobalEvents();
-  await initUpload();
-  await initConfig();
-  await initScreening();
-  await initResults();
-  await initExport();
-  await initHistory();
+  try {
+    await initUpload();
+    await initConfig();
+    await initScreening();
+    await initResults();
+    await initExport();
+    await initHistory();
+  } catch (err) {
+    console.error('Init error:', err);
+    showToast('初始化失败：' + err.message, 'error');
+  }
   updateStepNav();
   updatePanels();
 }
