@@ -91,8 +91,11 @@ body { font-family: var(--font-family); background: var(--color-bg-secondary); c
 
 .screening-progress { margin: 24px 0; }
 .progress-bar-wrap { height: 8px; background: var(--color-bg-secondary); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
-.progress-bar-fill { height: 100%; background: var(--color-primary); border-radius: 4px; transition: width 0.3s; width: 0%; }
+.progress-bar-fill { height: 100%; background: var(--color-primary); border-radius: 4px; transition: width 0.5s ease; width: 0%; }
+.progress-bar-fill.pulsing { animation: progress-pulse 1.2s ease-in-out infinite; }
+@keyframes progress-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; background: #60A5FA; } }
 .progress-stats { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-text-secondary); }
+.progress-speed { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
 .log-panel { background: #1A1A2E; color: #E5E7EB; border-radius: var(--radius); padding: 16px; max-height: 260px; overflow-y: auto; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; line-height: 1.8; }
 .log-entry { display: flex; gap: 8px; }
 .log-time { color: #9CA3AF; flex-shrink: 0; }

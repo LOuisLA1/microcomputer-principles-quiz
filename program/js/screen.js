@@ -3,10 +3,9 @@
 import { AppState, navigateTo, showToast } from './app.js';
 import { chatCompletion, withRetry } from './api.js';
 import { buildSystemPrompt, buildUserPrompt } from './config.js';
-import { createProgressBar, createLogPanel, formatDuration, uuid } from './ui.js';
+import { createProgressBar, createLogPanel, formatDuration, uuid, BATCH_SIZE } from './ui.js';
 import { saveTask } from './history.js';
 
-const BATCH_SIZE = 10;
 const BATCH_DELAY = 500;
 const MAX_RETRIES = 3;
 
@@ -99,10 +98,9 @@ async function processBatch(batch, config) {
   }));
 }
 
-function estimateTime(completedBatches, totalBatches, batchDelay) {
+function estimateTime(completedBatches, totalBatches, avgBatchMs) {
   const remaining = totalBatches - completedBatches;
-  const msPerBatch = batchDelay + 2000;
-  return remaining * msPerBatch;
+  return remaining * avgBatchMs;
 }
 
 export async function startScreening() {
@@ -167,6 +165,7 @@ export async function startScreening() {
 
   const results = new Array(papers.length).fill(null);
   const startTime = Date.now();
+  const batchTimes = []; // Track actual batch durations
 
   for (let b = 0; b < batches.length; b++) {
     if (screeningPaused) await waitForResume();
@@ -174,10 +173,20 @@ export async function startScreening() {
 
     const batch = batches[b];
     const batchNum = b + 1;
-    log.info(`处理第 ${batchNum}/${batches.length} 批（${batch.length} 篇）...`);
+
+    // Start pulsing animation while waiting for API
+    progress.pulse();
+    log.info(`⏳ 第 ${batchNum}/${batches.length} 批（${batch.length} 篇）分析中...`);
+
+    const batchStart = Date.now();
 
     try {
       const batchResults = await withRetry(() => processBatch(batch, config), MAX_RETRIES);
+      const batchElapsed = Date.now() - batchStart;
+      batchTimes.push(batchElapsed);
+
+      // Stop pulsing
+      progress.unpulse(batchElapsed);
 
       for (const br of batchResults) {
         const globalIdx = b * BATCH_SIZE + br.paperIndex;
@@ -192,14 +201,17 @@ export async function startScreening() {
         }
       }
 
+      log.info(`✅ 第 ${batchNum} 批完成（${(batchElapsed / 1000).toFixed(1)}s）`);
+
       batchResults.forEach(br => {
         const paper = papers[b * BATCH_SIZE + br.paperIndex];
         if (!paper) return;
         const prefix = br.result.level === 'high' ? '🟢' : br.result.level === 'medium' ? '🟡' : '🔴';
         const logFn = br.result.level === 'high' ? 'high' : br.result.level === 'medium' ? 'medium' : 'low';
-        log[logFn](`${prefix} ${(paper.title || '').slice(0, 60)}... — ${(br.result.reason || '').slice(0, 60)}`);
+        log[logFn](`${prefix} ${(paper.title || '').slice(0, 60)}...`);
       });
     } catch (err) {
+      progress.unpulse(0);
       log.error(`第 ${batchNum} 批处理失败: ${err.message}`);
       for (let bi = 0; bi < batch.length; bi++) {
         const globalIdx = b * BATCH_SIZE + bi;
@@ -213,8 +225,12 @@ export async function startScreening() {
     AppState.screeningProgress.processed = processed;
     progress.update(processed, papers.length);
 
-    const eta = estimateTime(b + 1, batches.length, BATCH_DELAY);
-    progress.setETA(`预计剩余 ${formatDuration(eta)}`);
+    // ETA based on actual average batch time
+    const avgMs = batchTimes.length > 0
+      ? batchTimes.reduce((s, t) => s + t, 0) / batchTimes.length + BATCH_DELAY
+      : 15000; // Initial guess: 15s per batch
+    const eta = estimateTime(b + 1, batches.length, avgMs);
+    progress.setETA(formatDuration(eta));
 
     const validResults = results.filter(r => r !== null);
     if (validResults.length > 0) {

@@ -59,19 +59,35 @@ export function createProgressBar(container) {
       <span class="progress-text">0 / 0</span>
       <span class="progress-eta">--</span>
     </div>
+    <div class="progress-speed"></div>
   `;
+
+  const fill = container.querySelector('.progress-bar-fill');
+  const speedEl = container.querySelector('.progress-speed');
 
   return {
     update(processed, total) {
       const pct = total > 0 ? Math.round((processed / total) * 100) : 0;
-      container.querySelector('.progress-bar-fill').style.width = `${pct}%`;
+      fill.style.width = `${pct}%`;
       container.querySelector('.progress-text').textContent = `${processed} / ${total} (${pct}%)`;
     },
     setETA(text) {
       container.querySelector('.progress-eta').textContent = text;
     },
+    pulse() {
+      fill.classList.add('pulsing');
+      speedEl.textContent = '⏳ 正在调用 AI 分析...';
+    },
+    unpulse(batchTime) {
+      fill.classList.remove('pulsing');
+      const perPaper = batchTime ? `${(batchTime / 1000).toFixed(1)}s` : '';
+      speedEl.textContent = batchTime ? `上一批耗时 ${perPaper}（${BATCH_SIZE || 10} 篇）` : '';
+    },
   };
 }
+
+// Re-export BATCH_SIZE for progress bar use
+export const BATCH_SIZE = 10;
 
 export function createLogPanel(container) {
   container.className = 'log-panel';
