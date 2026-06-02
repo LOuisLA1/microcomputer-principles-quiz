@@ -19,8 +19,8 @@ function getSettings() {
   };
 }
 
-export async function chatCompletion(messages, options = {}) {
-  const settings = getSettings();
+export async function chatCompletion(messages, options = {}, overrides = {}) {
+  const settings = { ...getSettings(), ...overrides };
   if (!settings.apiKey) throw new APIError(0, '请先在设置中配置 API Key');
 
   const controller = new AbortController();
@@ -66,7 +66,8 @@ export async function testConnection(customSettings) {
   try {
     const data = await chatCompletion(
       [{ role: 'user', content: '你好，请回复"连接成功"' }],
-      { maxTokens: 50, temperature: 0 }
+      { maxTokens: 50, temperature: 0 },
+      customSettings || {}
     );
     return !!(data.choices && data.choices.length > 0);
   } catch (err) {

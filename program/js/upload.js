@@ -64,12 +64,14 @@ function titleSimilarity(a, b) {
 
 function showColumnMappingModal(headers, autoDetected, rawData) {
   return new Promise((resolve) => {
+    // Values: -1=忽略, 0=标题列, 1=摘要列
     const options = ['-- 忽略 --', '标题列', '摘要列']
       .map((label, i) => `<option value="${i - 1}">${label}</option>`).join('');
 
     const rows = headers.map((h, i) => {
       const detected = autoDetected[i];
-      const selected = detected === 'title' ? 1 : (detected === 'abstract' ? 2 : 0);
+      // selected must match the option values: 0=标题列, 1=摘要列, -1=忽略
+      const selected = detected === 'title' ? 0 : (detected === 'abstract' ? 1 : -1);
       const highlight = detected ? 'style="background:#FEF3C7"' : '';
       return `<tr ${highlight}>
         <td>${h}</td>
@@ -111,8 +113,8 @@ function showColumnMappingModal(headers, autoDetected, rawData) {
           modal.querySelectorAll('.mapping-select').forEach(sel => {
             const colIdx = parseInt(sel.dataset.col);
             const val = parseInt(sel.value);
-            if (val === 1) titleCol.push(colIdx);
-            if (val === 2) abstractCol.push(colIdx);
+            if (val === 0) titleCol.push(colIdx);
+            if (val === 1) abstractCol.push(colIdx);
           });
           if (titleCol.length === 0 || abstractCol.length === 0) {
             showToast('请至少指定一个标题列和一个摘要列', 'warning');
