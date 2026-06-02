@@ -35,11 +35,12 @@ async function navigateTo(step) {
   AppState.step = step;
   updateStepNav();
   updatePanels();
-  // Re-render panels that depend on dynamic AppState data
-  if (step === 'config') await initConfig();
-  if (step === 'screening') await initScreening();
+  // Only re-render panels when NOT actively screening or when data is ready
+  const isScreening = AppState.screeningStatus === 'running' || AppState.screeningStatus === 'paused';
+  if (step === 'config' && !isScreening) await initConfig();
+  if (step === 'screening' && !isScreening) await initScreening();
   if (step === 'results') { const m = await import('./results.js'); m.renderResults(); }
-  if (step === 'export') await initExport();
+  if (step === 'export' && AppState.screeningResults.length > 0) await initExport();
 }
 
 function canAccessStep(step) {
