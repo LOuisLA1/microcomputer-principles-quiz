@@ -52,139 +52,223 @@ function loadTemplates() {
   } catch { return []; }
 }
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===== Non-destructive updates =====
+
+function updatePromptPreview() {
+  const preview = document.getElementById('prompt-preview');
+  if (!preview) return;
+  const config = AppState.researchConfig;
+  const prompt = config.name ? buildSystemPrompt(config) : '（填写研究方向后自动生成）';
+  preview.textContent = prompt;
+}
+
+function updateTagDisplay(type) {
+  const wrap = document.getElementById(type === 'include' ? 'tag-include' : 'tag-exclude');
+  const input = wrap?.querySelector('.tag-input-inner');
+  if (!wrap || !input) return;
+  const config = AppState.researchConfig;
+  const arr = type === 'include' ? config.keywords.include : config.keywords.exclude;
+  const cls = type === 'include' ? 'tag' : 'tag tag-exclude';
+  const tagHTML = arr.map((k, i) =>
+    `<span class="${cls}">${escapeHtml(k)}<span class="tag-remove" data-type="${type}" data-idx="${i}">&times;</span></span>`
+  ).join('');
+  // Preserve the input element
+  const existingInput = wrap.querySelector('.tag-input-inner');
+  wrap.innerHTML = tagHTML;
+  if (existingInput) wrap.appendChild(existingInput);
+}
+
+function updateExampleDisplay() {
+  const container = document.getElementById('examples-container');
+  if (!container) return;
+  const config = AppState.researchConfig;
+  if (config.examples.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = config.examples.map((ex, i) => `
+    <div style="background:var(--color-bg-secondary);padding:12px;border-radius:var(--radius);margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <strong>示例 ${i + 1}</strong>
+        <span class="tag-remove" data-type="example" data-idx="${i}" style="cursor:pointer;font-size:18px;">&times;</span>
+      </div>
+      <div style="margin-bottom:6px;">
+        <label style="font-size:12px;color:var(--color-text-secondary);">标题：</label>
+        <input type="text" class="form-input example-title" data-idx="${i}" value="${escapeHtml(ex.title)}" placeholder="示例文献标题" style="font-size:13px;">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--color-text-secondary);">摘要：</label>
+        <textarea class="form-textarea example-abstract" data-idx="${i}" rows="2" placeholder="示例文献摘要" style="font-size:13px;min-height:50px;">${escapeHtml(ex.abstract)}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== Full render (only for structural changes) =====
+
 export async function initConfig() {
   const panel = document.getElementById('panel-config');
+  const config = AppState.researchConfig;
+  const prompt = config.name ? buildSystemPrompt(config) : '（填写研究方向后自动生成）';
 
-  function render() {
-    const config = AppState.researchConfig;
-    const prompt = config.name ? buildSystemPrompt(config) : '（填写研究方向后自动生成）';
+  const incTagsHTML = config.keywords.include.map((k, i) =>
+    `<span class="tag">${escapeHtml(k)}<span class="tag-remove" data-type="include" data-idx="${i}">&times;</span></span>`
+  ).join('');
 
-    const incTags = config.keywords.include.map((k, i) =>
-      `<span class="tag">${k}<span class="tag-remove" data-type="include" data-idx="${i}">&times;</span></span>`
-    ).join('');
-    const excTags = config.keywords.exclude.map((k, i) =>
-      `<span class="tag tag-exclude">${k}<span class="tag-remove" data-type="exclude" data-idx="${i}">&times;</span></span>`
-    ).join('');
+  const excTagsHTML = config.keywords.exclude.map((k, i) =>
+    `<span class="tag tag-exclude">${escapeHtml(k)}<span class="tag-remove" data-type="exclude" data-idx="${i}">&times;</span></span>`
+  ).join('');
 
-    const exList = config.examples.map((ex, i) => `
-      <div style="background:var(--color-bg-secondary);padding:12px;border-radius:var(--radius);margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <strong>示例 ${i + 1}</strong>
-          <span class="tag-remove" data-type="example" data-idx="${i}" style="cursor:pointer;font-size:18px;">&times;</span>
-        </div>
-        <div style="font-size:13px;margin-bottom:4px;"><span style="color:var(--color-text-secondary);">标题：</span>${ex.title}</div>
-        <div style="font-size:13px;"><span style="color:var(--color-text-secondary);">摘要：</span>${ex.abstract.slice(0, 100)}${ex.abstract.length > 100 ? '...' : ''}</div>
+  const exHTML = config.examples.length > 0 ? config.examples.map((ex, i) => `
+    <div style="background:var(--color-bg-secondary);padding:12px;border-radius:var(--radius);margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <strong>示例 ${i + 1}</strong>
+        <span class="tag-remove" data-type="example" data-idx="${i}" style="cursor:pointer;font-size:18px;">&times;</span>
       </div>
-    `).join('');
-
-    panel.innerHTML = `
-      <div class="panel-header">
-        <h2 class="panel-title">② 研究方向配置</h2>
-        <p class="panel-desc">描述你的研究方向，AI 将据此判断文献相关性</p>
+      <div style="margin-bottom:6px;">
+        <label style="font-size:12px;color:var(--color-text-secondary);">标题：</label>
+        <input type="text" class="form-input example-title" data-idx="${i}" value="${escapeHtml(ex.title)}" placeholder="示例文献标题" style="font-size:13px;">
       </div>
+      <div>
+        <label style="font-size:12px;color:var(--color-text-secondary);">摘要：</label>
+        <textarea class="form-textarea example-abstract" data-idx="${i}" rows="2" placeholder="示例文献摘要" style="font-size:13px;min-height:50px;">${escapeHtml(ex.abstract)}</textarea>
+      </div>
+    </div>
+  `).join('') : '';
 
+  panel.innerHTML = `
+    <div class="panel-header">
+      <h2 class="panel-title">② 研究方向配置</h2>
+      <p class="panel-desc">描述你的研究方向，AI 将据此判断文献相关性</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">方向名称 <span class="required">*</span></label>
+      <input type="text" class="form-input" id="config-name" value="${escapeHtml(config.name)}" placeholder="例如：深度学习医学图像分割">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">筛选粒度</label>
+      <select class="form-select" id="config-mode">
+        <option value="simple" ${config.mode === 'simple' ? 'selected' : ''}>简单模式 — 仅判断相关/不相关</option>
+        <option value="standard" ${config.mode === 'standard' ? 'selected' : ''}>标准模式 — 三级分类 + 评分 + 理由</option>
+        <option value="detailed" ${config.mode === 'detailed' ? 'selected' : ''}>详细模式 — 标准 + 子主题 + 方法匹配</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">研究描述 <span class="required">*</span></label>
+      <textarea class="form-textarea" id="config-desc" rows="4" placeholder="请描述你的研究方向，包括研究对象、方法、应用场景等。例如：我关注基于深度学习的医学图像分割方法，特别是针对CT和MRI影像中的肿瘤自动检测与分割。感兴趣的方法包括U-Net及其变体、Transformer架构在医学图像中的应用等。">${escapeHtml(config.description)}</textarea>
+    </div>
+
+    <div class="form-row">
       <div class="form-group">
-        <label class="form-label">方向名称 <span class="required">*</span></label>
-        <input type="text" class="form-input" id="config-name" value="${escapeHtml(config.name)}" placeholder="例如：深度学习医学图像分割">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">筛选粒度</label>
-        <select class="form-select" id="config-mode">
-          <option value="simple" ${config.mode === 'simple' ? 'selected' : ''}>简单模式 — 仅判断相关/不相关</option>
-          <option value="standard" ${config.mode === 'standard' ? 'selected' : ''}>标准模式 — 三级分类 + 评分 + 理由</option>
-          <option value="detailed" ${config.mode === 'detailed' ? 'selected' : ''}>详细模式 — 标准 + 子主题 + 方法匹配</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">研究描述 <span class="required">*</span></label>
-        <textarea class="form-textarea" id="config-desc" rows="4" placeholder="请描述你的研究方向，包括研究对象、方法、应用场景等。例如：我关注基于深度学习的医学图像分割方法，特别是针对CT和MRI影像中的肿瘤自动检测与分割。感兴趣的方法包括U-Net及其变体、Transformer架构在医学图像中的应用等。">${escapeHtml(config.description)}</textarea>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">包含关键词</label>
-          <div class="tag-input-wrap" id="tag-include">
-            ${incTags}
-            <input type="text" class="tag-input-inner" id="tag-include-input" placeholder="输入后回车添加">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">排除关键词</label>
-          <div class="tag-input-wrap" id="tag-exclude">
-            ${excTags}
-            <input type="text" class="tag-input-inner" id="tag-exclude-input" placeholder="输入后回车添加">
-          </div>
+        <label class="form-label">包含关键词</label>
+        <div class="tag-input-wrap" id="tag-include">
+          ${incTagsHTML}
+          <input type="text" class="tag-input-inner" id="tag-include-input" placeholder="输入后回车添加">
         </div>
       </div>
-
       <div class="form-group">
-        <label class="form-label">示例文献（最多 5 篇）</label>
-        ${exList}
-        <button class="btn btn-sm" id="btn-add-example">+ 添加示例文献</button>
-        <p class="form-hint">提供高度相关的示例文献，帮助 AI 更准确判断</p>
+        <label class="form-label">排除关键词</label>
+        <div class="tag-input-wrap" id="tag-exclude">
+          ${excTagsHTML}
+          <input type="text" class="tag-input-inner" id="tag-exclude-input" placeholder="输入后回车添加">
+        </div>
       </div>
+    </div>
 
-      <div class="divider"></div>
+    <div class="form-group">
+      <label class="form-label">示例文献（最多 5 篇）</label>
+      <div id="examples-container">${exHTML}</div>
+      <button class="btn btn-sm" id="btn-add-example" style="margin-top:8px;">+ 添加示例文献</button>
+      <p class="form-hint">提供高度相关的示例文献，帮助 AI 更准确判断</p>
+    </div>
 
-      <div class="form-group">
-        <label class="form-label">System Prompt 预览</label>
-        <div class="log-panel" style="max-height:200px;white-space:pre-wrap;">${escapeHtml(prompt)}</div>
-      </div>
+    <div class="divider"></div>
 
-      <div class="panel-actions">
-        <button class="btn" id="btn-save-template">💾 保存为模板</button>
-        <button class="btn" id="btn-load-template">📂 加载模板</button>
-        <button class="btn btn-primary btn-lg" id="btn-next-screening" ${AppState.papers.length === 0 ? 'disabled' : ''}>
-          下一步：开始筛选 →
-        </button>
-      </div>
-    `;
+    <div class="form-group">
+      <label class="form-label">System Prompt 预览</label>
+      <div class="log-panel" id="prompt-preview" style="max-height:200px;white-space:pre-wrap;">${prompt}</div>
+    </div>
 
-    bindEvents();
-  }
+    <div class="panel-actions">
+      <button class="btn" id="btn-save-template">💾 保存为模板</button>
+      <button class="btn" id="btn-load-template">📂 加载模板</button>
+      <button class="btn btn-primary btn-lg" id="btn-next-screening" ${AppState.papers.length === 0 ? 'disabled' : ''}>
+        下一步：开始筛选 →
+      </button>
+    </div>
+  `;
 
-  function bindEvents() {
-    document.getElementById('config-name').addEventListener('input', (e) => {
-      AppState.researchConfig.name = e.target.value.trim();
-      render();
-    });
+  bindEvents();
+}
 
-    document.getElementById('config-mode').addEventListener('change', (e) => {
-      AppState.researchConfig.mode = e.target.value;
-      render();
-    });
+// ===== Event binding (no re-render for text input) =====
 
-    document.getElementById('config-desc').addEventListener('input', (e) => {
-      AppState.researchConfig.description = e.target.value;
-      render();
-    });
+function bindEvents() {
+  // Text inputs: update AppState + prompt preview ONLY (no DOM replacement)
+  const nameInput = document.getElementById('config-name');
+  const descInput = document.getElementById('config-desc');
+  const modeSelect = document.getElementById('config-mode');
+  const panel = document.getElementById('panel-config');
 
-    setupTagInput('tag-include', 'tag-include-input', 'include');
-    setupTagInput('tag-exclude', 'tag-exclude-input', 'exclude');
+  nameInput?.addEventListener('input', (e) => {
+    AppState.researchConfig.name = e.target.value.trim();
+    updatePromptPreview();
+  });
 
-    panel.addEventListener('click', (e) => {
-      if (e.target.classList.contains('tag-remove')) {
-        const type = e.target.dataset.type;
-        const idx = parseInt(e.target.dataset.idx);
-        if (type === 'include') AppState.researchConfig.keywords.include.splice(idx, 1);
-        else if (type === 'exclude') AppState.researchConfig.keywords.exclude.splice(idx, 1);
-        else if (type === 'example') AppState.researchConfig.examples.splice(idx, 1);
-        render();
+  descInput?.addEventListener('input', (e) => {
+    AppState.researchConfig.description = e.target.value;
+    updatePromptPreview();
+  });
+
+  modeSelect?.addEventListener('change', (e) => {
+    AppState.researchConfig.mode = e.target.value;
+    updatePromptPreview();
+  });
+
+  // Tag inputs: Enter to add
+  setupTagInput('tag-include', 'tag-include-input', 'include');
+  setupTagInput('tag-exclude', 'tag-exclude-input', 'exclude');
+
+  // Delegate click events on the panel (survives DOM updates)
+  panel?.addEventListener('click', (e) => {
+    // Tag remove
+    if (e.target.classList.contains('tag-remove')) {
+      const type = e.target.dataset.type;
+      const idx = parseInt(e.target.dataset.idx);
+      if (type === 'include') {
+        AppState.researchConfig.keywords.include.splice(idx, 1);
+        updateTagDisplay('include');
+      } else if (type === 'exclude') {
+        AppState.researchConfig.keywords.exclude.splice(idx, 1);
+        updateTagDisplay('exclude');
+      } else if (type === 'example') {
+        AppState.researchConfig.examples.splice(idx, 1);
+        updateExampleDisplay();
       }
-    });
+      updatePromptPreview();
+    }
 
-    document.getElementById('btn-add-example').addEventListener('click', () => {
+    // Add example button
+    if (e.target.id === 'btn-add-example') {
       if (AppState.researchConfig.examples.length >= 5) {
         showToast('最多添加 5 篇示例文献', 'warning');
         return;
       }
       AppState.researchConfig.examples.push({ title: '', abstract: '' });
-      render();
-    });
+      updateExampleDisplay();
+    }
 
-    document.getElementById('btn-save-template').addEventListener('click', () => {
+    // Save template
+    if (e.target.id === 'btn-save-template') {
       if (!AppState.researchConfig.name) {
         showToast('请先填写方向名称', 'warning');
         return;
@@ -196,9 +280,10 @@ export async function initConfig() {
       else templates.push(data);
       saveTemplates(templates);
       showToast('模板已保存', 'success');
-    });
+    }
 
-    document.getElementById('btn-load-template').addEventListener('click', () => {
+    // Load template
+    if (e.target.id === 'btn-load-template') {
       const templates = loadTemplates();
       if (templates.length === 0) {
         showToast('没有已保存的模板', 'info');
@@ -225,42 +310,55 @@ export async function initConfig() {
           });
         });
       }, 100);
-    });
+    }
 
-    document.getElementById('btn-next-screening').addEventListener('click', () => {
-      const name = document.getElementById('config-name').value.trim();
-      const desc = document.getElementById('config-desc').value.trim();
-      if (!name) { showToast('请填写方向名称', 'warning'); return; }
-      if (!desc) { showToast('请填写研究描述', 'warning'); return; }
-      AppState.researchConfig.name = name;
-      AppState.researchConfig.description = desc;
+    // Next step
+    if (e.target.id === 'btn-next-screening') {
+      const nameVal = document.getElementById('config-name')?.value?.trim() || AppState.researchConfig.name;
+      const descVal = document.getElementById('config-desc')?.value?.trim() || AppState.researchConfig.description;
+      if (!nameVal) { showToast('请填写方向名称', 'warning'); return; }
+      if (!descVal) { showToast('请填写研究描述', 'warning'); return; }
+      AppState.researchConfig.name = nameVal;
+      AppState.researchConfig.description = descVal;
       navigateTo('screening');
-    });
-  }
+    }
+  });
 
-  function setupTagInput(wrapId, inputId, type) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const val = input.value.trim();
-        if (val) {
-          const arr = type === 'include' ? AppState.researchConfig.keywords.include : AppState.researchConfig.keywords.exclude;
-          if (!arr.includes(val)) {
-            arr.push(val);
-            render();
-          }
-        }
+  // Example input changes
+  panel?.addEventListener('input', (e) => {
+    if (e.target.classList.contains('example-title')) {
+      const idx = parseInt(e.target.dataset.idx);
+      if (AppState.researchConfig.examples[idx]) {
+        AppState.researchConfig.examples[idx].title = e.target.value;
+        updatePromptPreview();
       }
-    });
-  }
-
-  render();
+    }
+    if (e.target.classList.contains('example-abstract')) {
+      const idx = parseInt(e.target.dataset.idx);
+      if (AppState.researchConfig.examples[idx]) {
+        AppState.researchConfig.examples[idx].abstract = e.target.value;
+        updatePromptPreview();
+      }
+    }
+  });
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+function setupTagInput(wrapId, inputId, type) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (val) {
+        const arr = type === 'include' ? AppState.researchConfig.keywords.include : AppState.researchConfig.keywords.exclude;
+        if (!arr.includes(val)) {
+          arr.push(val);
+          updateTagDisplay(type);
+          updatePromptPreview();
+          input.value = '';
+        }
+      }
+    }
+  });
 }

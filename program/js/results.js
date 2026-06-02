@@ -124,7 +124,7 @@ function renderChart(stats) {
 }
 
 function getFilteredResults() {
-  let results = AppState.screeningResults.map((r, i) => ({ ...r, _idx: i }));
+  let results = AppState.screeningResults.map((r, i) => ({ ...r, displayIdx: i }));
 
   if (currentFilter === 'manual') {
     results = results.filter(r => r.manualOverride);
@@ -136,7 +136,7 @@ function getFilteredResults() {
   if (searchEl && searchEl.value.trim()) {
     const query = searchEl.value.trim().toLowerCase();
     results = results.filter(r => {
-      const paper = AppState.papers[r._idx];
+      const paper = AppState.papers[r._paperIdx];
       return paper && (
         paper.title.toLowerCase().includes(query) ||
         paper.abstract.toLowerCase().includes(query) ||
@@ -147,8 +147,8 @@ function getFilteredResults() {
 
   if (currentSort.field) {
     results.sort((a, b) => {
-      const paperA = AppState.papers[a._idx] || {};
-      const paperB = AppState.papers[b._idx] || {};
+      const paperA = AppState.papers[a._paperIdx] || {};
+      const paperB = AppState.papers[b._paperIdx] || {};
       let va, vb;
       switch (currentSort.field) {
         case 'title': va = paperA.title || ''; vb = paperB.title || ''; break;
@@ -174,12 +174,12 @@ function renderTable() {
   const papers = AppState.papers;
 
   tbody.innerHTML = filtered.map((r, displayIdx) => {
-    const paper = papers[r._idx] || {};
+    const paper = papers[r._paperIdx] || {};
     const levelLabel = r.level === 'high' ? '高度相关' : r.level === 'medium' ? '可能相关' : '不相关';
     const badgeCls = r.manualOverride ? 'badge-manual' : `badge-${r.level}`;
     const manualMark = r.manualOverride ? ' 🔷' : '';
 
-    const isExpanded = expandedRows.has(r._idx);
+    const isExpanded = expandedRows.has(r._paperIdx);
     const detailRow = isExpanded ? `
       <tr class="detail-row show">
         <td colspan="7">
@@ -196,13 +196,13 @@ function renderTable() {
       </tr>` : '<tr class="detail-row"></tr>';
 
     return `
-      <tr class="result-row" data-idx="${r._idx}">
-        <td><input type="checkbox" class="row-check" data-idx="${r._idx}"></td>
+      <tr class="result-row" data-idx="${r._paperIdx}">
+        <td><input type="checkbox" class="row-check" data-idx="${r._paperIdx}"></td>
         <td>${displayIdx + 1}</td>
         <td class="result-title" title="${escapeHtml(paper.title)}">${escapeHtml(paper.title.slice(0, 80))}${paper.title.length > 80 ? '...' : ''}</td>
         <td>${escapeHtml(paper.author || '-')}</td>
         <td>${escapeHtml(paper.year || '-')}</td>
-        <td><span class="badge ${badgeCls}" data-idx="${r._idx}" title="点击修改分级">${levelLabel}${manualMark}</span></td>
+        <td><span class="badge ${badgeCls}" data-idx="${r._paperIdx}" title="点击修改分级">${levelLabel}${manualMark}</span></td>
         <td>${r.score ?? '-'}</td>
       </tr>
       ${detailRow}

@@ -30,11 +30,16 @@ const AppState = {
 // ===== Step Navigation =====
 const steps = ['upload', 'config', 'screening', 'results', 'export'];
 
-function navigateTo(step) {
+async function navigateTo(step) {
   if (!canAccessStep(step)) return;
   AppState.step = step;
   updateStepNav();
   updatePanels();
+  // Re-render panels that depend on dynamic AppState data
+  if (step === 'config') await initConfig();
+  if (step === 'screening') await initScreening();
+  if (step === 'results') { const m = await import('./results.js'); m.renderResults(); }
+  if (step === 'export') await initExport();
 }
 
 function canAccessStep(step) {

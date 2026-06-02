@@ -183,6 +183,7 @@ export async function startScreening() {
         const globalIdx = b * BATCH_SIZE + br.paperIndex;
         if (globalIdx < papers.length) {
           results[globalIdx] = {
+            _paperIdx: globalIdx,
             ...br.result,
             rawResponse: br.rawResponse,
             parseError: br.parseError || false,
@@ -193,16 +194,17 @@ export async function startScreening() {
 
       batchResults.forEach(br => {
         const paper = papers[b * BATCH_SIZE + br.paperIndex];
+        if (!paper) return;
         const prefix = br.result.level === 'high' ? '🟢' : br.result.level === 'medium' ? '🟡' : '🔴';
         const logFn = br.result.level === 'high' ? 'high' : br.result.level === 'medium' ? 'medium' : 'low';
-        log[logFn](`${prefix} ${paper.title.slice(0, 60)}... — ${br.result.reason.slice(0, 60)}`);
+        log[logFn](`${prefix} ${(paper.title || '').slice(0, 60)}... — ${(br.result.reason || '').slice(0, 60)}`);
       });
     } catch (err) {
       log.error(`第 ${batchNum} 批处理失败: ${err.message}`);
-      for (const paper of batch) {
-        const idx = papers.indexOf(paper);
-        if (idx >= 0) {
-          results[idx] = { level: 'low', score: 0, reason: `处理失败: ${err.message}`, rawResponse: '', parseError: true, manualOverride: false };
+      for (let bi = 0; bi < batch.length; bi++) {
+        const globalIdx = b * BATCH_SIZE + bi;
+        if (globalIdx < papers.length) {
+          results[globalIdx] = { _paperIdx: globalIdx, level: 'low', score: 0, reason: `处理失败: ${err.message}`, rawResponse: '', parseError: true, manualOverride: false };
         }
       }
     }

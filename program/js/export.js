@@ -14,7 +14,7 @@ function exportExcel() {
   const papers = AppState.papers;
 
   const rows = results.map((r, i) => {
-    const paper = papers[r._idx] || {};
+    const paper = papers[r._paperIdx] || {};
     const levelLabel = r.level === 'high' ? '高度相关' : r.level === 'medium' ? '可能相关' : '不相关';
     return {
       '序号': i + 1,
@@ -112,7 +112,7 @@ function exportMarkdownReport() {
   lines.push('');
   const highResults = results.filter(r => r.level === 'high');
   highResults.forEach((r, i) => {
-    const paper = papers[r._idx] || {};
+    const paper = papers[r._paperIdx] || {};
     lines.push(`### ${i + 1}. ${paper.title}`);
     lines.push(`- **作者：** ${paper.author || '未知'} | **年份：** ${paper.year || '未知'}`);
     lines.push(`- **评分：** ${r.score ?? '-'} | **优先级：** ${r.priority ?? '-'}`);
@@ -126,7 +126,7 @@ function exportMarkdownReport() {
     lines.push('');
     const medResults = results.filter(r => r.level === 'medium');
     medResults.forEach((r, i) => {
-      const paper = papers[r._idx] || {};
+      const paper = papers[r._paperIdx] || {};
       lines.push(`- **${paper.title}** — ${r.reason}`);
     });
     lines.push('');
@@ -136,7 +136,7 @@ function exportMarkdownReport() {
   lines.push('');
   const lowResults = results.filter(r => r.level === 'low');
   lowResults.forEach((r, i) => {
-    const paper = papers[r._idx] || {};
+    const paper = papers[r._paperIdx] || {};
     lines.push(`- ~~${paper.title}~~ — ${r.reason ? r.reason.slice(0, 80) : '不相关'}`);
   });
   lines.push('');
@@ -279,7 +279,7 @@ export function renderExportPreview(type) {
           <thead><tr><th>#</th><th>分级</th><th>标题</th><th>评分</th><th>理由</th></tr></thead>
           <tbody>
             ${results.slice(0, 5).map((r, i) => {
-              const paper = papers[r._idx] || {};
+              const paper = papers[r._paperIdx] || {};
               const levelLabel = r.level === 'high' ? '高度相关' : r.level === 'medium' ? '可能相关' : '不相关';
               return `<tr>
                 <td>${i + 1}</td>
